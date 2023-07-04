@@ -1,0 +1,2 @@
+with open("file_name", "mode") as file:
+    csv.writer(file).writerow([stuff, stuff2, stuff3])
