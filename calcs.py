@@ -87,3 +87,21 @@ def cap(value, minValue, maxValue):
         value = minValue
     return value
 
+
+def point_to_line(point, two_points_of_line):
+    point_x, point_y = point
+    x1, y1 = two_points_of_line[0]
+    x2, y2 = two_points_of_line[1]
+    dx = x2 - x1
+    dy = y2 - y1
+    parameterization = ((point_x - x1) * dx + (point_y - y1) * dy) / (dx ** 2 + dy ** 2)
+    if parameterization < 0:
+        closest_x, closest_y = x1, y1
+    elif parameterization > 1:
+        closest_x, closest_y = x2, y2
+    else:
+        closest_x = x1 + parameterization * dx
+        closest_y = y1 + parameterization * dy
+
+    d = math.sqrt((point_x - closest_x) ** 2 + (point_y - closest_y) ** 2)
+    return d, [closest_x, closest_y]
