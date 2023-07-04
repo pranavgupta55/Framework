@@ -18,7 +18,7 @@ screenUI = pygame.Surface((screen_width, screen_height)).convert_alpha()
 timer = 0
 shake = [0, 0]
 shake_strength = 3
-scroll_counter = 0
+scroll = [0, 0]
 pygame.font.get_fonts()
 font15 = pygame.font.Font("freesansbold.ttf", 15)
 font20 = pygame.font.Font("freesansbold.ttf", 20)
@@ -30,32 +30,48 @@ font100 = pygame.font.Font("freesansbold.ttf", 100)
 
 
 class Endesga:
-    maroon_red = (87, 28, 39)
-    lighter_maroon_red = (127, 36, 51)
-    dark_green = (9, 26, 23)
-    light_brown = (191, 111, 74)
-    black = (19, 19, 19)
-    grey_blue = (66, 76, 110)
-    cream = (237, 171, 80)
-    white = (255, 255, 255)
-    greyL = (200, 200, 200)
-    grey = (150, 150, 150)
-    greyD = (100, 100, 100)
-    greyVD = (50, 50, 50)
-    very_light_blue = (199, 207, 221)
-    my_blue = [7, 15, 21]
+    maroon_red = [87, 28, 39]
+    lighter_maroon_red = [127, 36, 51]
+    dark_green = [9, 26, 23]
+    light_brown = [191, 111, 74]
+    black = [19, 19, 19]
+    grey_blue = [66, 76, 110]
+    cream = [237, 171, 80]
+    white = [255, 255, 255]
+    greyL = [200, 200, 200]
+    grey = [150, 150, 150]
+    greyD = [100, 100, 100]
+    greyVD = [50, 50, 50]
+    very_light_blue = [199, 207, 221]
+    my_blue = [32, 36, 46]
+    debug_red = [255, 96, 141]
+    sebastian_lague_purple = [70, 74, 124]
+    sebastian_lague_light_purple = [137, 133, 181]
 
 
-# Defining some more variables to use in the game loop
-oscillating_random_thing = 0
-ShakeCounter = 0
+unprocessed_data = []
+full_list = []
+sorted_list = []
+with open('layout1.txt') as f:
+    lines = f.readlines()
+    for li in lines:
+        unprocessed_data.append(li.strip("\n"))
 
+for line in unprocessed_data:
+    for char in line:
+        full_list.append(int(char))
+
+temp = []
+for i, char in enumerate(full_list):
+    temp.append(char)
+    if (i + 1) % len(unprocessed_data[0]) == 0:
+        sorted_list.append(temp)
+        temp = []
 
 tile_size = 20
-level = []
 tile_rects = []
 ty = 0
-for row in level:
+for row in sorted_list:
     tx = 0
     for tile in row:
         if tile == 1:
@@ -63,6 +79,10 @@ for row in level:
         tx += 1
     ty += 1
 
+# Defining some more variables to use in the game loop
+oscillating_random_thing = 0
+ShakeCounter = 0
+click = False
 
 # ---------------- Main Game Loop
 last_time = time.time()
@@ -70,32 +90,31 @@ running = True
 while running:
 
     # ---------------- Reset Variables and Clear screens
-    oscillating_random_thing += math.pi/fps
-    click = False
     mx, my = pygame.mouse.get_pos()
     screen.fill(Endesga.my_blue)
     screen2.fill(Endesga.my_blue)
     screenT.fill((0, 0, 0, 0))
     screenUI.fill((0, 0, 0, 0))
     dt = time.time() - last_time
-    dt *= 60
+    dt *= fps
     last_time = time.time()
     timer -= 1 * dt
     shake = [0, 0]
+    oscillating_random_thing += math.pi / fps * dt
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.MOUSEBUTTONDOWN:
             click = True
+        if event.type == pygame.MOUSEBUTTONUP:
+            click = False
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 running = False
         if event.type == pygame.KEYUP:
             pass
 
-    y = 0
-    x = 0
     for t in tile_rects:
         pygame.draw.rect(screen2, Endesga.greyL, (t.x - t.width / 7, t.y + t.height / 7, t.width, t.height))
 

@@ -1,4 +1,36 @@
 import pygame
+from text import draw_text
+
+
+class button:
+    def __init__(self, x, y, w, h, r, text, font, col, border_col, text_col, text_shadow_col):
+        self.x = x
+        self.y = y
+        self.w = w
+        self.h = h
+        self.rect = pygame.rect.Rect(self.x - self.w / 2, self.y - self.h / 2, self.w, self.h)
+        self.text = text
+        self.font = font
+        self.roundness = r
+        self.col = col
+        self.border_col = border_col
+        self.text_col = text_col
+        self.text_shadow_col = text_shadow_col
+
+    def draw(self, s, mouse_x, mouse_y, c):
+        if c and self.rect.collidepoint((mouse_x, mouse_y)):
+            pygame.draw.rect(s, self.col, (self.rect.x, self.rect.y + self.rect.height / 10, self.rect.width, self.rect.height), 0, self.roundness)
+            pygame.draw.rect(s, self.border_col, (self.rect.x, self.rect.y + self.rect.height / 10, self.rect.width, self.rect.height), 2, self.roundness)
+            draw_text(s, self.text_col, self.text_shadow_col, self.font, self.rect.centerx, self.rect.centery + self.rect.height / 10, True, str(self.text), 2, True, self.w)
+        else:
+            pygame.draw.rect(s, self.col, self.rect, 0, self.roundness)
+            pygame.draw.rect(s, self.border_col, self.rect, 2, self.roundness)
+            draw_text(s, self.text_col, self.text_shadow_col, self.font, self.rect.centerx, self.rect.centery, True, str(self.text), 2, True, self.w)
+
+    def update(self, mouse_x, mouse_y, c):
+        if c:
+            if self.rect.collidepoint((mouse_x, mouse_y)):
+                return True
 
 
 def create_buttons(num_hor, num_ver, space_hor, space_ver, width, height, text, clicked, coord):

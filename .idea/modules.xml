@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/../ClothSimulation/.idea/ClothSimulation.iml" filepath="$PROJECT_DIR$/../ClothSimulation/.idea/ClothSimulation.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/Framework.iml" filepath="$PROJECT_DIR$/.idea/Framework.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../boids/.idea/boids.iml" filepath="$PROJECT_DIR$/../boids/.idea/boids.iml" />
     </modules>
   </component>
 </project>
