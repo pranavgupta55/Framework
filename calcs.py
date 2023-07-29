@@ -105,3 +105,22 @@ def point_to_line(point, two_points_of_line):
 
     d = math.sqrt((point_x - closest_x) ** 2 + (point_y - closest_y) ** 2)
     return d, [closest_x, closest_y]
+
+
+def circumcircle(vertices):
+    # Extract the vertices
+    (x1, y1), (x2, y2), (x3, y3) = vertices
+
+    # Calculate the coordinates of the circumcircle center
+    D = 2 * (x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2))
+    center_x = ((x1 ** 2 + y1 ** 2) * (y2 - y3) + (x2 ** 2 + y2 ** 2) * (y3 - y1) + (x3 ** 2 + y3 ** 2) * (y1 - y2)) / D
+    center_y = ((x1 ** 2 + y1 ** 2) * (x3 - x2) + (x2 ** 2 + y2 ** 2) * (x1 - x3) + (x3 ** 2 + y3 ** 2) * (x2 - x1)) / D
+
+    # Calculate the radius of the circumcircle
+    radius = math.sqrt((x1 - center_x) ** 2 + (y1 - center_y) ** 2)
+
+    return (center_x, center_y), radius
+
+
+def random_sign():
+    return random.randint(0, 1) * 2 - 1
