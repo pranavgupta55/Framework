@@ -82,6 +82,7 @@ for row in sorted_list:
 # Defining some more variables to use in the game loop
 oscillating_random_thing = 0
 ShakeCounter = 0
+toggle = True
 click = False
 
 # ---------------- Main Game Loop
@@ -112,6 +113,8 @@ while running:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 running = False
+            if event.key == pygame.K_SPACE:
+                toggle = not toggle
         if event.type == pygame.KEYUP:
             pass
 
@@ -122,8 +125,10 @@ while running:
         pygame.draw.rect(screen2, Endesga.white, t)
 
     # ---------------- Updating Screen
-    pygame.mouse.set_visible(False)
-    pygame.draw.circle(screenUI, Endesga.white, (mx, my), 5, 1)
+    if toggle:
+        pygame.mouse.set_visible(False)
+        pygame.draw.circle(screenUI, Endesga.black, (mx + 1, my + 1), 5, 1)
+        pygame.draw.circle(screenUI, Endesga.white, (mx, my), 5, 1)
     screen.blit(screen2, (shake[0], shake[1]))
     screen.blit(screenT, (0, 0))
     screen.blit(screenUI, (0, 0))
