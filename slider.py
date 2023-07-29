@@ -3,7 +3,7 @@ import math
 
 
 class slider:
-    def __init__(self, x, y, width, height, orientation):
+    def __init__(self, x, y, width, height, orientation="hor"):
         self.x = x
         self.y = y
         self.w = width
