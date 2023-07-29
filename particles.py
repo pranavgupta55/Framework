@@ -2,11 +2,11 @@ import pygame
 import math
 from calcs import distance
 from calcs import normalize_angle
-fps = 60
-tile_size = 20
+from calcs import brightness
+import random
 
 
-class shockwave:
+class Shockwave:
     # Function for initializing the shockwave object with its parameters
     def __init__(self, sx, sy, duration, size, max_size, width, color, color2, shadow):
         self.x = sx
@@ -33,36 +33,53 @@ class shockwave:
         pygame.draw.circle(s, self.color, (self.x, self.y), self.size, int(self.width))
 
 
-class particle:
-    def __init__(self, px, py, vel, a, color, color2, size, decay, gravity, bounciness, timer):
+class Particle:
+    # Function for initializing the particle object with its parameters
+    def __init__(self, px, py, x_vel, y_vel, color, color2, size, decay, gravity, bounciness):
         self.x = px
         self.y = py
-        self.vel = vel
-        self.a = a
-        self.size = size
-        self.rect = pygame.rect.Rect(self.x - self.size / 2, self.y - self.size / 2, self.size, self.size)
+        self.x_vel = x_vel
+        self.y_vel = y_vel
         self.color = color
         self.color2 = color2
+        self.size = size
         self.decay = decay
         self.gravity = gravity
         self.bounciness = bounciness
-        self.walls = []
-        self.timer = timer
+
+    # Function for drawing the particle on the screen
+    def blit(self, s):
+        pygame.draw.circle(s, self.color2, (self.x - self.size / 4, self.y + self.size / 4), self.size)
+        pygame.draw.circle(s, self.color, (self.x, self.y), self.size)
+
+    # Function that is called every frame for moving the particle
+    def move(self, dt):
+        self.x += self.x_vel * dt
+        self.y += self.y_vel * dt
+        self.y_vel += self.gravity * dt
+        self.size -= self.decay * dt
+
+
+class bullet:
+    # This initializes the bullet object with its parameters
+    def __init__(self, r, x, y, vel, angle, ricochet, col, dmg, t):
+        self.r = r
+        self.rect = pygame.rect.Rect(x - self.r, y - self.r, self.r * 2, self.r * 2)
+        self.vel = vel
+        self.a = normalize_angle(angle)
+        self.ric = ricochet
+        self.has_bounced = False
+        self.col = col
+        self.dmg = dmg
         self.sample_counter = 0
         self.sample_rate = 2
+        self.walls = []
+        self.movement = [1, 0]
         self.dir = [1, 1]
+        self.timer = t * 60
 
     def update(self, ts, tile_s, delta_t):
-        self.a = normalize_angle(self.a)
-        if 0 < self.a < math.pi / 2:
-            self.a += self.gravity
-        if math.pi / 2 < self.a < math.pi:
-            self.a -= self.gravity
-        if math.pi < self.a < 3 * math.pi / 4:
-            self.a -= self.gravity
-        if 3 * math.pi / 4 < self.a < math.pi * 2:
-            self.a += self.gravity
-        self.size -= self.decay
+        self.has_bounced = False
         self.timer -= 1 * delta_t
         self.sample_counter += 1
         if self.sample_counter > self.sample_rate:
@@ -72,80 +89,86 @@ class particle:
                     self.walls.append(ti)
             self.sample_counter = 0
 
-    def blit(self, s):
-        pygame.draw.circle(s, self.color2, (self.rect.centerx + self.size / 4, self.rect.centery + self.size / 4), self.size)
-        pygame.draw.circle(s, self.color, (self.rect.centerx, self.rect.centery), self.size)
-
     def move(self, delta_t):
-        self.rect.x += self.vel * math.cos(self.a) * delta_t * self.dir[0]
-        for w in self.walls:
-            if w[0].colliderect(self.rect):
-                if math.cos(self.a) * self.dir[0] > 0:
-                    self.dir[0] *= -1
-                    self.rect.right = (w[0].left - self.vel)
-                    self.vel *= self.bounciness
-                elif math.cos(self.a) * self.dir[0] < 0:
-                    self.dir[0] *= -1
-                    self.rect.left = (w[0].right + self.vel)
-                    self.vel *= self.bounciness
-        self.rect.y += self.vel * math.sin(self.a) * delta_t * self.dir[1]
-        for w in self.walls:
-            if w[0].colliderect(self.rect):
-                if math.sin(self.a) * self.dir[1] > 0:
-                    self.dir[1] *= -1
-                    self.rect.bottom = (w[0].top - self.vel)
-                    self.vel *= self.bounciness
-                elif math.sin(self.a) * self.dir[1] < 0:
-                    self.dir[1] *= -1
-                    self.rect.top = (w[0].bottom + self.vel)
-                    self.vel *= self.bounciness
-        if self.timer <= 0:
+        if self.movement[0] == 1:
+            self.rect.x += self.vel * math.cos(self.a) * delta_t * self.dir[0]
+            for w in self.walls:
+                if w[0].colliderect(self.rect):
+                    if not self.has_bounced:
+                        self.ric -= 1
+                        self.has_bounced = True
+                    if math.cos(self.a) * self.dir[0] > 0:
+                        self.dir[0] *= -1
+                        self.rect.right = (w[0].left - self.vel)
+                    elif math.cos(self.a) * self.dir[0] < 0:
+                        self.dir[0] *= -1
+                        self.rect.left = (w[0].right + self.vel)
+            self.rect.y += self.vel * math.sin(self.a) * delta_t * self.dir[1]
+            for w in self.walls:
+                if w[0].colliderect(self.rect):
+                    if not self.has_bounced:
+                        self.ric -= 1
+                        self.has_bounced = True
+                    if math.sin(self.a) * self.dir[1] > 0:
+                        self.dir[1] *= -1
+                        self.rect.bottom = (w[0].top - self.vel)
+                    elif math.sin(self.a) * self.dir[1] < 0:
+                        self.dir[1] *= -1
+                        self.rect.top = (w[0].bottom + self.vel)
+        if self.ric < 0 or self.timer <= 0:
+            return True
+
+    def draw(self, s, scr, show_rects, show_hitbox):
+        if show_rects:
+            for w in self.walls:
+                pygame.draw.rect(s, (200, 100, 100), (w[0].x - scr[0], w[0].y - scr[1], w[0].w, w[0].h))
+        if show_hitbox:
+            pygame.draw.rect(s, self.col, (self.rect.x - scr[0], self.rect.y - scr[1], self.rect.w, self.rect.h), 1)
+        pygame.draw.circle(s, self.col, (self.rect.centerx - scr[0], self.rect.centery - scr[1]), self.r)
+
+
+class Glow:
+    # Function for initializing the particle object with its parameters
+    def __init__(self, px, py, x_vel, y_vel, color, color2, glow_col, size, min_size, decay, gravity, flicker):
+        self.x = px
+        self.y = py
+        self.x_vel = x_vel
+        self.y_vel = y_vel
+        self.color = color
+        self.color2 = color2
+        self.glow_col = glow_col
+        self.size = size
+        self.min_size = min_size
+        self.decay = decay
+        self.gravity = gravity
+        self.offset = random.uniform(0, 2 * math.pi)
+        self.flicker = flicker
+
+    # Function for drawing the particle on the screen
+    def blit(self, s, oscillating_thing):
+        if self.color2 is not None:
+            pygame.draw.circle(s, self.color2, (self.x - self.size / 4, self.y + self.size / 4), self.size)
+        pygame.draw.circle(s, self.color, (self.x, self.y), self.size)
+
+        surf = pygame.Surface((self.size * 4 + (math.sin(oscillating_thing + self.offset) + 1) * self.flicker * 2, self.size * 4 + (math.sin(oscillating_thing + self.offset) + 1) * self.flicker * 2))
+        if self.glow_col is None:
+            pygame.draw.circle(surf, brightness(self.color, 0.1), (self.size * 2 + (math.sin(oscillating_thing + self.offset) + 1) * self.flicker, self.size * 2 + (math.sin(oscillating_thing + self.offset) + 1) * self.flicker), self.size * 2 + (math.sin(oscillating_thing + self.offset) + 1) * self.flicker)
+        else:
+            pygame.draw.circle(surf, self.glow_col, (self.size * 2 + (math.sin(oscillating_thing + self.offset) + 1) * self.flicker, self.size * 2 + (math.sin(oscillating_thing + self.offset) + 1) * self.flicker), self.size * 2 + (math.sin(oscillating_thing + self.offset) + 1) * self.flicker)
+        surf.set_colorkey((0, 0, 0))
+        s.blit(surf, (self.x - self.size * 2 - (math.sin(oscillating_thing + self.offset) + 1) * self.flicker, self.y - self.size * 2 - (math.sin(oscillating_thing + self.offset) + 1) * self.flicker), special_flags=pygame.BLEND_RGB_ADD)
+
+    # Function that is called every frame for moving the particle
+    def move(self, dt):
+        self.x += self.x_vel * dt
+        self.y += self.y_vel * dt
+        self.y_vel += self.gravity * dt
+        self.size -= self.decay * dt
+        if self.size < self.min_size:
             return True
 
 
-class bullet:
-    # This initializes the bullet object with its parameters
-    def __init__(self, rect, bx, by, x_vel, y_vel, ang, ricochet, col, dmg, b_timer):
-        self.rect = rect
-        self.x = bx
-        self.y = by
-        self.x_vel = x_vel
-        self.y_vel = y_vel
-        self.angle = ang
-        self.ric = ricochet
-        self.col = col
-        self.dmg = dmg
-        self.timer = b_timer
-
-    def collide(self, tiles):
-        for ti in tiles:
-            if ti.colliderect(self.rect):
-                if math.fabs(ti.top - self.y - self.rect.height) < (tile_size / 3):
-                    self.y = ti.top - 5 - self.rect.height
-                    self.y_vel *= -1
-                    self.ric -= 1
-                if math.fabs(ti.bottom - self.y) < (tile_size / 3):
-                    self.y = ti.bottom + 5
-                    self.y_vel *= -1
-                    self.ric -= 1
-            if ti.colliderect(self.rect):
-                if math.fabs(ti.left - self.x - self.rect.width) < (tile_size / 3):
-                    self.x = ti.left - 5 - self.rect.width
-                    self.x_vel *= -1
-                    self.ric -= 1
-                if math.fabs(ti.right - self.rect.left) < (tile_size / 3):
-                    self.x = ti.right + 5
-                    self.x_vel *= -1
-                    self.ric -= 1
-        self.rect.x = self.x
-        self.rect.y = self.y
-
-    def move(self):
-        self.x += self.x_vel * self.angle[0]
-        self.y += self.y_vel * self.angle[1]
-
-
-class spark:
+class Spark:
     # This function initializes the spark object by taking in parameters
     def __init__(self, sx, sy, vel, color, color2, size, angle, decay, speed_decay, rotation, gravity, length):
         self.x = sx
@@ -192,4 +215,3 @@ class spark:
             self.angle += self.rotation * t
         if math.pi / 2 > self.angle > 0:
             self.angle += self.rotation * t
-
