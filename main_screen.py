@@ -2,6 +2,7 @@ import pygame
 import math
 import time
 import random
+from text import draw_text
 
 pygame.init()
 
@@ -90,6 +91,7 @@ while running:
 
     # ---------------- Updating Screen
     if toggle:
+        draw_text(screen2, Endesga.white, Endesga.black, better_font40, 20, screen_height - 40, False, str(int(clock.get_fps())), 3, False, None)
         pygame.mouse.set_visible(False)
         pygame.draw.circle(screenUI, Endesga.black, (mx + 1, my + 1), 5, 1)
         pygame.draw.circle(screenUI, Endesga.white, (mx, my), 5, 1)
