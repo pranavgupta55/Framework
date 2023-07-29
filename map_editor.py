@@ -56,7 +56,8 @@ class Endesga:
 unprocessed_data = []
 full_list = []
 sorted_list = []
-with open('layout2.txt', 'r') as f:
+file = 'layout2.txt'
+with open(file, 'r') as f:
     lines = f.readlines()
     for li in lines:
         unprocessed_data.append(li.strip("\n"))
@@ -151,7 +152,7 @@ while running:
                     if (i + 1) % len(unprocessed_data[0]) == 0:
                         write_lines.append(temp + '\n')
                         temp = ''
-                with open('layout2.txt', 'w') as f:
+                with open(file, 'w') as f:
                     f.writelines(write_lines)
                 running = False
             if event.key == pygame.K_RIGHT:
