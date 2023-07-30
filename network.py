@@ -118,12 +118,19 @@ def draw_network(network, s, position, green, red, spacing_x=50, spacing_y=20):
                 start_pos = x * spacing_x + position[0], (y - len(layers[x].weights[0]) / 2) * spacing_y + position[1]
                 end_pos = (x + 1) * spacing_x + position[0], (z - len(layers[x].weights) / 2) * spacing_y + position[1]
                 if weight[y] > 0:
-                    pygame.draw.line(s, green, start_pos, end_pos, math.ceil(round(weight[y] * 100) / 100))
+                    pygame.draw.line(s, green, start_pos, end_pos, math.ceil(weight[y]))
                 else:
-                    pygame.draw.line(s, red, start_pos, end_pos, math.ceil(round(weight[y] * -100) / 100))
+                    pygame.draw.line(s, red, start_pos, end_pos, math.floor(weight[y]))
                 z += 1
             y += 1
             z = 0
+        w = 0
+        for bias in lay.bias:
+            if bias > 0:
+                pygame.draw.circle(s, green, ((x + 1) * spacing_x + position[0], (w - len(layers[x].weights) / 2) * spacing_y + position[1]), math.ceil(bias[0]) * 2)
+            else:
+                pygame.draw.circle(s, red, ((x + 1) * spacing_x + position[0], (w - len(layers[x].weights) / 2) * spacing_y + position[1]), math.floor(bias[0]) * -2)
+            w += 1
         x += 1
         y = 0
 
