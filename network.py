@@ -120,7 +120,7 @@ def draw_network(network, s, position, green, red, spacing_x=50, spacing_y=20):
                 if weight[y] > 0:
                     pygame.draw.line(s, green, start_pos, end_pos, math.ceil(weight[y]))
                 else:
-                    pygame.draw.line(s, red, start_pos, end_pos, math.floor(weight[y]))
+                    pygame.draw.line(s, red, start_pos, end_pos, -math.floor(weight[y]))
                 z += 1
             y += 1
             z = 0
