@@ -105,7 +105,7 @@ class NeuralNetwork:
         return mse(actual, output)
 
 
-def draw_network(network, s, position, green, red, spacing=50):
+def draw_network(network, s, position, green, red, spacing_x=50, spacing_y=20):
     x, y, z = 0, 0, 0
     layers = []
     for lay in network.layers:
@@ -115,8 +115,8 @@ def draw_network(network, s, position, green, red, spacing=50):
     for lay in layers:
         for next_node in range(len(lay.weights[0])):
             for weight in lay.weights:
-                start_pos = x * spacing + position[0], (y - len(layers[x].weights[0]) / 2) * spacing + position[1]
-                end_pos = (x + 1) * spacing + position[0], (z - len(layers[x].weights) / 2) * spacing + position[1]
+                start_pos = x * spacing_x + position[0], (y - len(layers[x].weights[0]) / 2) * spacing_y + position[1]
+                end_pos = (x + 1) * spacing_x + position[0], (z - len(layers[x].weights) / 2) * spacing_y + position[1]
                 if weight[y] > 0:
                     pygame.draw.line(s, green, start_pos, end_pos, math.ceil(round(weight[y] * 100) / 100))
                 else:
