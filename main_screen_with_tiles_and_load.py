@@ -48,6 +48,8 @@ class Endesga:
     debug_red = [255, 96, 141]
     sebastian_lague_purple = [70, 74, 124]
     sebastian_lague_light_purple = [137, 133, 181]
+    network_green = [64, 128, 67]
+    network_red = [127, 45, 41]
 
 
 unprocessed_data = []
