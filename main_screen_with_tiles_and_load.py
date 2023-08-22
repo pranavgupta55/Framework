@@ -12,6 +12,7 @@ clock = pygame.time.Clock()
 fps = 60
 screen_width = screen.get_width()
 screen_height = screen.get_height()
+screen_center = [screen_width / 2, screen_height / 2]
 screen2 = pygame.Surface((screen_width, screen_height)).convert_alpha()
 screenT = pygame.Surface((screen_width, screen_height)).convert_alpha()
 screenT.set_alpha(100)
