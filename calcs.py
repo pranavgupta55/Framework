@@ -8,7 +8,7 @@ def distance(point1, point2):
 
 
 def ang(start_pos, end_pos):
-    if start_pos[0] < end_pos[0]:
+    if start_pos[0] <= end_pos[0]:
         return math.atan((end_pos[1] - start_pos[1]) / (end_pos[0] - start_pos[0] + 0.0001))
     else:
         return math.atan((end_pos[1] - start_pos[1]) / (end_pos[0] - start_pos[0] + 0.0001)) + math.pi
