@@ -20,7 +20,6 @@ screenUI = pygame.Surface((screen_width, screen_height)).convert_alpha()
 timer = 0
 shake = [0, 0]
 shake_strength = 3
-scroll = [0, 0]
 pygame.font.get_fonts()
 font15 = pygame.font.Font("freesansbold.ttf", 15)
 font20 = pygame.font.Font("freesansbold.ttf", 20)
