@@ -1,7 +1,16 @@
 import pygame
 
 
-def draw_text(screen_, color_, color2_, font_, x_, y_, centered_, text_, shadow_size_, wrap_, max_len):
+def getFontSize(font_, text_, color_):
+    sprite = font_.render(text_, True, color_)
+    return [sprite.get_width(), sprite.get_height()]
+
+
+def simpleText(screen_, color_, font_, x_, y_, text_):
+    screen_.blit(font_.render(text_, True, color_), (x_, y_))
+
+
+def draw_text(screen_, color_, font_, x_, y_, text_, color2_=None, shadow_size_=0, wrap_=False, max_len=None, centered_=False):
     if wrap_:
         if pygame.font.Font.size(font_, text_)[0] > max_len:
             all_words = []
@@ -25,23 +34,29 @@ def draw_text(screen_, color_, color2_, font_, x_, y_, centered_, text_, shadow_
             output.append(complete_row)
             if centered_:
                 for i, row in enumerate(output):
-                    screen_.blit(font_.render(row, True, color2_), (x_ - pygame.font.Font.size(font_, row)[0] / 2 + shadow_size_, y_ + shadow_size_ + ((i - len(output) / 2) * 1.1 * pygame.font.Font.size(font_, row)[1])))
+                    if shadow_size_ != 0:
+                        screen_.blit(font_.render(row, True, color2_), (x_ - pygame.font.Font.size(font_, row)[0] / 2 + shadow_size_, y_ + shadow_size_ + ((i - len(output) / 2) * 1.1 * pygame.font.Font.size(font_, row)[1])))
                     screen_.blit(font_.render(row, True, color_), (x_ - pygame.font.Font.size(font_, row)[0] / 2, y_ + ((i - len(output) / 2) * 1.1 * pygame.font.Font.size(font_, row)[1])))
             else:
                 for i, row in enumerate(output):
-                    screen_.blit(font_.render(row, True, color2_), (x_ + shadow_size_, y_ + shadow_size_ + (i * 1.1 * pygame.font.Font.size(font_, row)[1])))
+                    if shadow_size_ != 0:
+                        screen_.blit(font_.render(row, True, color2_), (x_ + shadow_size_, y_ + shadow_size_ + (i * 1.1 * pygame.font.Font.size(font_, row)[1])))
                     screen_.blit(font_.render(row, True, color_), (x_, y_ + (i * 1.1 * pygame.font.Font.size(font_, row)[1])))
         else:
             if centered_:
-                screen_.blit(font_.render(text_, True, color2_), (x_ - pygame.font.Font.size(font_, text_)[0] / 2 + shadow_size_, y_ - pygame.font.Font.size(font_, text_)[1] / 2 + shadow_size_))
+                if shadow_size_ != 0:
+                    screen_.blit(font_.render(text_, True, color2_), (x_ - pygame.font.Font.size(font_, text_)[0] / 2 + shadow_size_, y_ - pygame.font.Font.size(font_, text_)[1] / 2 + shadow_size_))
                 screen_.blit(font_.render(text_, True, color_), (x_ - pygame.font.Font.size(font_, text_)[0] / 2, y_ - pygame.font.Font.size(font_, text_)[1] / 2))
             else:
-                screen_.blit(font_.render(text_, True, color2_), (x_ + shadow_size_, y_ + shadow_size_))
-                screen_.blit(font_.render(text_, True, color_), (x_ - pygame.font.Font.size(font_, text_)[0] / 2, y_))
+                if shadow_size_ != 0:
+                    screen_.blit(font_.render(text_, True, color2_), (x_ + shadow_size_, y_ + shadow_size_))
+                screen_.blit(font_.render(text_, True, color_), (x_, y_))
     else:
         if centered_:
-            screen_.blit(font_.render(text_, True, color2_), (x_ - pygame.font.Font.size(font_, text_)[0] / 2 + shadow_size_, y_ - pygame.font.Font.size(font_, text_)[1] / 2 + shadow_size_))
+            if shadow_size_ != 0:
+                screen_.blit(font_.render(text_, True, color2_), (x_ - pygame.font.Font.size(font_, text_)[0] / 2 + shadow_size_, y_ - pygame.font.Font.size(font_, text_)[1] / 2 + shadow_size_))
             screen_.blit(font_.render(text_, True, color_), (x_ - pygame.font.Font.size(font_, text_)[0] / 2, y_ - pygame.font.Font.size(font_, text_)[1] / 2))
         else:
-            screen_.blit(font_.render(text_, True, color2_), (x_ + shadow_size_, y_ + shadow_size_))
+            if shadow_size_ != 0:
+                screen_.blit(font_.render(text_, True, color2_), (x_ + shadow_size_, y_ + shadow_size_))
             screen_.blit(font_.render(text_, True, color_), (x_, y_))
