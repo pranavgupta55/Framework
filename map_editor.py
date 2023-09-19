@@ -256,7 +256,7 @@ while running:
                 selected_block = tt.num
 
     # ---------------- Updating Screen
-    draw_text(screen2, Endesga.debug_red, Endesga.black, better_font40, 20, screen_height - 40, False, str(int(mx)) + ", " + str(int(my)), 3, False, None)
+    draw_text(screen2, Endesga.debug_red, better_font40, 20, screen_height - 40, str(int(mx)) + ", " + str(int(my)), Endesga.black, 3)
     pygame.mouse.set_visible(False)
     pygame.draw.circle(screenUI, Endesga.greyL, (mx, my), 2)
     pygame.draw.circle(screenUI, Endesga.greyL, (mx, my), brush_size * tile_size, 1)
