@@ -60,7 +60,7 @@ class Particle:
         self.size -= self.decay * dt
 
 
-class bullet:
+class Bullet:
     # This initializes the bullet object with its parameters
     def __init__(self, r, x, y, vel, angle, ricochet, col, dmg, t):
         self.r = r
@@ -85,7 +85,7 @@ class bullet:
         if self.sample_counter > self.sample_rate:
             self.walls = []
             for ti in ts:
-                if distance((ti[0].centerx, ti[0].centery), (self.rect.centerx, self.rect.centery)) / (self.vel / 1.5) < tile_s:
+                if distance((ti.centerx, ti.centery), (self.rect.centerx, self.rect.centery)) / (self.vel / 1.5) < tile_s:
                     self.walls.append(ti)
             self.sample_counter = 0
 
@@ -99,10 +99,10 @@ class bullet:
                         self.has_bounced = True
                     if math.cos(self.a) * self.dir[0] > 0:
                         self.dir[0] *= -1
-                        self.rect.right = (w[0].left - self.vel)
+                        self.rect.right = (w.left - self.vel)
                     elif math.cos(self.a) * self.dir[0] < 0:
                         self.dir[0] *= -1
-                        self.rect.left = (w[0].right + self.vel)
+                        self.rect.left = (w.right + self.vel)
             self.rect.y += self.vel * math.sin(self.a) * delta_t * self.dir[1]
             for w in self.walls:
                 if w[0].colliderect(self.rect):
@@ -111,17 +111,17 @@ class bullet:
                         self.has_bounced = True
                     if math.sin(self.a) * self.dir[1] > 0:
                         self.dir[1] *= -1
-                        self.rect.bottom = (w[0].top - self.vel)
+                        self.rect.bottom = (w.top - self.vel)
                     elif math.sin(self.a) * self.dir[1] < 0:
                         self.dir[1] *= -1
-                        self.rect.top = (w[0].bottom + self.vel)
+                        self.rect.top = (w.bottom + self.vel)
         if self.ric < 0 or self.timer <= 0:
             return True
 
     def draw(self, s, scr, show_rects, show_hitbox):
         if show_rects:
             for w in self.walls:
-                pygame.draw.rect(s, (200, 100, 100), (w[0].x - scr[0], w[0].y - scr[1], w[0].w, w[0].h))
+                pygame.draw.rect(s, (200, 100, 100), (w.x - scr[0], w.y - scr[1], w.w, w.h))
         if show_hitbox:
             pygame.draw.rect(s, self.col, (self.rect.x - scr[0], self.rect.y - scr[1], self.rect.w, self.rect.h), 1)
         pygame.draw.circle(s, self.col, (self.rect.centerx - scr[0], self.rect.centery - scr[1]), self.r)
