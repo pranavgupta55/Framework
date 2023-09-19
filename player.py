@@ -70,8 +70,10 @@ class Player:
             self.vel[1] = -self.jh
         self.jump_counter -= 1
 
-    def draw(self, s, scroll, show_rects, show_hitbox):
-        pygame.draw.rect(s, self.col, (self.rect.x - scroll[0], self.rect.y - scroll[1], self.rect.w, self.rect.h), 0, int(min(self.rect.w, self.rect.h) / 4))
+    def draw(self, s, scroll, draw_outline=False, show_rects=False, show_hitbox=False):
+        pygame.draw.rect(s, self.col, (self.rect.x - scroll[0], self.rect.y - scroll[1], self.rect.w, self.rect.h), 0, int(min(self.rect.w, self.rect.h) / 3))
+        if draw_outline:
+            pygame.draw.rect(s, [0, 0, 0], (self.rect.x - scroll[0], self.rect.y - scroll[1], self.rect.w, self.rect.h), 1, int(min(self.rect.w, self.rect.h) / 2))
         if show_rects:
             for w in self.walls:
                 pygame.draw.rect(s, [255, 96, 141], (w.x - scroll[0], w.y - scroll[1], w.w, w.h))
