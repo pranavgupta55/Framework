@@ -93,7 +93,7 @@ while running:
 
     # ---------------- Updating Screen
     if toggle:
-        draw_text(screenUI, Endesga.white, Endesga.black, better_font40, 20, screen_height - 40, False, str(round(clock.get_fps())), 2, False, None)
+        draw_text(screenUI, Endesga.debug_red, better_font40, 20, screen_height - 40, str(round(clock.get_fps())), Endesga.black, 3)
         pygame.mouse.set_visible(False)
         pygame.draw.circle(screenUI, Endesga.black, (mx + 1, my + 1), 5, 1)
         pygame.draw.circle(screenUI, Endesga.white, (mx, my), 5, 1)
