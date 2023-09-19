@@ -31,7 +31,7 @@ class Player:
         if self.sample_counter > self.sample_rate:
             self.walls = []
             for ti in ts:
-                if distance((ti.centerx, ti.centery), (self.rect.centerx, self.rect.centery)) < (max([math.fabs(self.vel[0]), math.fabs(self.vel[1]), self.tv]) * self.sample_rate):
+                if distance((ti.centerx, ti.centery), (self.rect.centerx, self.rect.centery)) < (2 * max([math.fabs(self.vel[0]), math.fabs(self.vel[1]), self.tv]) * self.sample_rate):
                     self.walls.append(ti)
             self.sample_counter = 0
 
