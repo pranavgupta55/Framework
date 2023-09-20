@@ -21,21 +21,21 @@ class Shockwave:
 
     # This function is run each frame and increases the size of the shockwave but decreases the width
     def expand(self):
-        self.size += (self.max_size-self.size)/(10 * self.duration)
-        if self.size/self.max_size < 0.8:
+        self.size += (self.max_size - self.size) / (10 * self.duration)
+        if self.size / self.max_size < 0.8:
             self.width -= 0.03
         else:
             self.width -= 0.1
 
     # This function draws the shockwave (and its shadow) on the screen
-    def blit(self, s):
+    def draw(self, s):
         pygame.draw.circle(s, self.color2, (self.x - self.shadow, self.y + self.shadow), self.size, int(self.width))
         pygame.draw.circle(s, self.color, (self.x, self.y), self.size, int(self.width))
 
 
 class Particle:
     # Function for initializing the particle object with its parameters
-    def __init__(self, px, py, x_vel, y_vel, color, color2, size, decay, gravity, bounciness):
+    def __init__(self, px, py, x_vel, y_vel, color, color2, size, timer, decay=0, gravity=0, bounciness=0):
         self.x = px
         self.y = py
         self.x_vel = x_vel
@@ -43,14 +43,15 @@ class Particle:
         self.color = color
         self.color2 = color2
         self.size = size
+        self.timer = timer
         self.decay = decay
         self.gravity = gravity
         self.bounciness = bounciness
 
     # Function for drawing the particle on the screen
-    def blit(self, s):
-        pygame.draw.circle(s, self.color2, (self.x - self.size / 4, self.y + self.size / 4), self.size)
-        pygame.draw.circle(s, self.color, (self.x, self.y), self.size)
+    def draw(self, s, scr):
+        pygame.draw.circle(s, self.color2, (self.x - self.size / 4 - scr[0], self.y + self.size / 4 - scr[1]), self.size)
+        pygame.draw.circle(s, self.color, (self.x - scr[0], self.y - scr[1]), self.size)
 
     # Function that is called every frame for moving the particle
     def move(self, dt):
@@ -58,9 +59,47 @@ class Particle:
         self.y += self.y_vel * dt
         self.y_vel += self.gravity * dt
         self.size -= self.decay * dt
+        self.timer -= dt
 
 
 class Bullet:
+    def __init__(self, x, y, vel, angle, dmg, size, col, t, sample_rate=60):
+        self.x = x
+        self.y = y
+        self.v = vel
+        self.a = normalize_angle(angle)
+        self.dmg = dmg
+        self.s = size
+        self.c = col
+        self.timer = t
+        self.sample_counter = 0
+        self.sample_rate = sample_rate
+        self.walls = []
+
+    def move(self, dt):
+        self.x += self.v * math.cos(self.a) * dt
+        self.y += self.v * math.sin(self.a) * dt
+
+    def update(self, ts, tile_s, dt):
+        self.timer -= 1 * dt
+        self.sample_counter += 1
+        if self.sample_counter > self.sample_rate:
+            self.walls = []
+            for ti in ts:
+                if distance((ti.centerx, ti.centery), (self.x, self.y)) / (self.v / 1.5) < tile_s:
+                    self.walls.append(ti)
+            self.sample_counter = 0
+
+    def collideWithWalls(self):
+        for w in self.walls:
+            if w.rect.collidepoint((self.x, self.y)):
+                return True
+
+    def draw(self, s, scr):
+        pygame.draw.circle(s, self.c, (self.x - scr[0], self.y - scr[1]), self.s)
+
+
+class PhysicsParticle:
     # This initializes the bullet object with its parameters
     def __init__(self, r, x, y, vel, angle, ricochet, col, dmg, t):
         self.r = r
@@ -145,7 +184,7 @@ class Glow:
         self.flicker = flicker
 
     # Function for drawing the particle on the screen
-    def blit(self, s, oscillating_thing):
+    def draw(self, s, oscillating_thing):
         if self.color2 is not None:
             pygame.draw.circle(s, self.color2, (self.x - self.size / 4, self.y + self.size / 4), self.size)
         pygame.draw.circle(s, self.color, (self.x, self.y), self.size)
@@ -188,16 +227,12 @@ class Spark:
     # when the object was initialized such as the x, y, size, length, and angle
     # This function then uses those points to draw the polygon on the screen
     # The function also draws a shadow below the diamond using the points and the "shadow" parameter
-    def blit(self, s, shifted_scroll):
-        points = [(self.x + (self.size * self.length/3 * math.cos(self.angle)) - self.size - shifted_scroll[0], self.y + (self.size * 2 * math.sin(self.angle)) + self.size - shifted_scroll[1]),
-                  (self.x + (self.size * math.cos(self.angle + math.pi / 2)) - self.size - shifted_scroll[0], self.y + (self.size * math.sin(self.angle + math.pi / 2)) + self.size - shifted_scroll[1]),
-                  (self.x + (self.size * 2 * self.length/3 * math.cos(self.angle + math.pi)) - self.size - shifted_scroll[0], self.y + (self.size * 3 * math.sin(self.angle + math.pi)) + self.size - shifted_scroll[1]),
-                  (self.x + (self.size * math.cos(self.angle - math.pi / 2)) - self.size - shifted_scroll[0], self.y + (self.size * math.sin(self.angle - math.pi / 2)) + self.size - shifted_scroll[1])]
+    def draw(self, s, shifted_scroll):
+        points = [(self.x + (self.size * self.length / 3 * math.cos(self.angle)) - self.size - shifted_scroll[0], self.y + (self.size * 2 * math.sin(self.angle)) + self.size - shifted_scroll[1]), (self.x + (self.size * math.cos(self.angle + math.pi / 2)) - self.size - shifted_scroll[0], self.y + (self.size * math.sin(self.angle + math.pi / 2)) + self.size - shifted_scroll[1]),
+                  (self.x + (self.size * 2 * self.length / 3 * math.cos(self.angle + math.pi)) - self.size - shifted_scroll[0], self.y + (self.size * 3 * math.sin(self.angle + math.pi)) + self.size - shifted_scroll[1]), (self.x + (self.size * math.cos(self.angle - math.pi / 2)) - self.size - shifted_scroll[0], self.y + (self.size * math.sin(self.angle - math.pi / 2)) + self.size - shifted_scroll[1])]
         pygame.draw.polygon(s, self.color2, points)
-        points = [(self.x + (self.size * self.length/3 * math.cos(self.angle)) - shifted_scroll[0], self.y + (self.size * 2 * math.sin(self.angle)) - shifted_scroll[1]),
-                  (self.x + (self.size * math.cos(self.angle + math.pi / 2)) - shifted_scroll[0], self.y + (self.size * math.sin(self.angle + math.pi/2)) - shifted_scroll[1]),
-                  (self.x + (self.size * 2 * self.length/3 * math.cos(self.angle + math.pi)) - shifted_scroll[0], self.y + (self.size * 3 * math.sin(self.angle + math.pi)) - shifted_scroll[1]),
-                  (self.x + (self.size * math.cos(self.angle - math.pi / 2)) - shifted_scroll[0], self.y + (self.size * math.sin(self.angle - math.pi/2)) - shifted_scroll[1])]
+        points = [(self.x + (self.size * self.length / 3 * math.cos(self.angle)) - shifted_scroll[0], self.y + (self.size * 2 * math.sin(self.angle)) - shifted_scroll[1]), (self.x + (self.size * math.cos(self.angle + math.pi / 2)) - shifted_scroll[0], self.y + (self.size * math.sin(self.angle + math.pi / 2)) - shifted_scroll[1]),
+                  (self.x + (self.size * 2 * self.length / 3 * math.cos(self.angle + math.pi)) - shifted_scroll[0], self.y + (self.size * 3 * math.sin(self.angle + math.pi)) - shifted_scroll[1]), (self.x + (self.size * math.cos(self.angle - math.pi / 2)) - shifted_scroll[0], self.y + (self.size * math.sin(self.angle - math.pi / 2)) - shifted_scroll[1])]
         pygame.draw.polygon(s, self.color, points)
 
     # This function uses the angle, decay, gravity, rotation, and speed_decay parameters to move the points
