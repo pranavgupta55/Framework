@@ -56,7 +56,7 @@ class Endesga:
 unprocessed_data = []
 full_list = []
 sorted_list = []
-file = 'layout2.txt'
+file = 'layout.txt'
 with open(file, 'r') as f:
     lines = f.readlines()
     for li in lines:
@@ -75,42 +75,58 @@ for i, char in enumerate(full_list):
 
 
 class Tiles:
-    def __init__(self, tile_type, color, num, shadow):
+    def __init__(self, tile_type, color, num):
         self.type = tile_type
         self.col = color
         self.rect = pygame.rect.Rect(0, 0, 0, 0)
         self.num = num
-        self.shadow = shadow
 
 
-tile_types = [Tiles("Clear", (255, 50, 100), 0, False), Tiles('Wall', (245, 240, 245), 1, True), Tiles('Water', (10, 80, 120), 2, False)]
+#
+#
+#
+#
+#
+#
+#
+tile_types = [Tiles("Clear", (255, 50, 100), 0),
+              Tiles('Wall', (245, 240, 245), 1),
+              Tiles('Water', (10, 80, 120), 2),
+              Tiles('Turret', (120, 120, 80), 3)]
+#
+#
+#
+#
+#
+#
+#
+
 UI_size = 50
 for i, ti in enumerate(tile_types):
     ti.rect = pygame.rect.Rect((screen_width / 2 - (len(tile_types) - (i + 1)) * UI_size), screen_height - UI_size * 1.3, UI_size, UI_size)
 UI_rect = pygame.rect.Rect((screen_width / 2 - (len(tile_types) - 1) * UI_size) - UI_size * 0.25, screen_height - UI_size * 1.4, UI_size * len(tile_types) + UI_size * 0.5, UI_size * 1.2)
 
 
-def create_rect(tile_, tile_x, tile_y, ts, tile_type_nums, lists):
-    for t_i, til in enumerate(tile_type_nums):
-        if tile_ == tile_type_nums[t_i]:
-            lists[t_i].append(pygame.rect.Rect(tile_size * tile_x, tile_size * tile_y, tile_size, ts))
+def create_rect(tile_, tile_x, tile_y, lists):
+    tile_nums = [tile_type.num for tile_type in tile_types]
+    for t_i, til in enumerate(tile_nums):
+        if tile_ == tile_nums[t_i] and t_i != 0:
+            lists[t_i].append(pygame.rect.Rect(tile_size * tile_x, tile_size * tile_y, tile_size, tile_size))
     return lists
 
 
 tile_size = 9
-tile_rects = []
-water_rects = []
+all_lists = [[] for _ in tile_types]
 all_rects = []
 ty = 0
-print(len(sorted_list[0]), len(sorted_list))
+print("Dimensions: " + str(len(sorted_list[0])) + ", " + str(len(sorted_list)))
 for row in sorted_list:
     tx = 0
     for tile in row:
         all_rects.append(pygame.rect.Rect(tile_size * tx, tile_size * ty, tile_size, tile_size))
-        tile_rects, water_rects = create_rect(tile, tx, ty, tile_size, [1, 2], [tile_rects, water_rects])
+        all_lists = create_rect(tile, tx, ty, all_lists)
         tx += 1
     ty += 1
-
 
 # Defining some more variables to use in the game loop
 oscillating_random_thing = 0
@@ -124,7 +140,7 @@ running = True
 while running:
 
     # ---------------- Reset Variables and Clear screens
-    oscillating_random_thing += math.pi/fps
+    oscillating_random_thing += math.pi / fps
     mx, my = pygame.mouse.get_pos()
     screen.fill(Endesga.my_blue)
     screen2.fill(Endesga.my_blue)
@@ -212,30 +228,26 @@ while running:
     scroll[0] += scrolling[0]
     scroll[1] += scrolling[1]
 
-    for t in tile_rects:
-        pygame.draw.rect(screen2, Endesga.greyL, (t.x - t.width / 7 - scroll[0], t.y + t.height / 7 - scroll[1], t.width, t.height))
-
-    for t in tile_rects:
-        pygame.draw.rect(screen2, Endesga.white, (t.x - scroll[0], t.y - scroll[1], t.width, t.height))
-
-    for w in water_rects:
-        pygame.draw.rect(screen2, (10, 80, 120), (w.x - scroll[0], w.y - scroll[1], w.width, w.height))
-
-    tile_rects = []
-    water_rects = []
+    all_lists = [[] for _ in tile_types]
     ty = 0
     for row in sorted_list:
         tx = 0
         for tile in row:
-            tile_rects, water_rects = create_rect(tile, tx, ty, tile_size, [1, 2], [tile_rects, water_rects])
+            all_lists = create_rect(tile, tx, ty, all_lists)
             tx += 1
         ty += 1
+
+    for list_index, rects_list in enumerate(all_lists):
+        # for rect in rects_list:
+        #     pygame.draw.rect(screen2, Endesga.black, (rect.x - rect.width / 7 - scroll[0], rect.y - rect.height / 7 - scroll[1], rect.width, rect.height))
+        for rect in rects_list:
+            pygame.draw.rect(screen2, tile_types[list_index].col, (rect.x - scroll[0], rect.y - scroll[1], rect.width, rect.height))
 
     for i, t in enumerate(all_rects):
         if click:
             if distance((t.centerx, t.centery), (mx + scroll[0], my + scroll[1])) < (brush_size * tile_size) and not UI_rect.collidepoint((mx, my)):
                 full_list[i] = selected_block
-                sorted_list[i//(len(unprocessed_data[0]))][i % len(unprocessed_data[0])] = selected_block
+                sorted_list[i // (len(unprocessed_data[0]))][i % len(unprocessed_data[0])] = selected_block
         # Light - i % 89 == 79 or i % 76 == 57 or i % 86 == 33
         # Dense - i % 17 == 5 or i % 29 == 7 or i % 31 == 11 or i % 37 == 17 or i % 41 == 19 or i % 59 == 23 or i % 73 == 29
         if i % 89 == 79 or i % 76 == 57 or i % 86 == 33:
@@ -247,8 +259,7 @@ while running:
         if tt.type == "Clear":
             pygame.draw.rect(screenUI, (179, 36, 71), tt.rect, 0, int(UI_size / 8))
             pygame.draw.circle(screenUI, tt.col, tt.rect.center, tt.rect.width / 2.2, 6)
-            pygame.draw.line(screenUI, tt.col, (tt.rect.centerx - tt.rect.width / 4.4, tt.rect.centery - tt.rect.height / 4.4),
-                             (tt.rect.centerx + tt.rect.width / 4.4, tt.rect.centery + tt.rect.height / 4.4), 10)
+            pygame.draw.line(screenUI, tt.col, (tt.rect.centerx - tt.rect.width / 4.4, tt.rect.centery - tt.rect.height / 4.4), (tt.rect.centerx + tt.rect.width / 4.4, tt.rect.centery + tt.rect.height / 4.4), 10)
         else:
             pygame.draw.rect(screenUI, tt.col, tt.rect, 0, int(UI_size / 8))
         if tt.rect.collidepoint((mx, my)):
@@ -256,6 +267,7 @@ while running:
                 selected_block = tt.num
 
     # ---------------- Updating Screen
+    draw_text(screen2, Endesga.debug_red, better_font40, 20, screen_height - 70, str(int(clock.get_fps())), Endesga.black, 3)
     draw_text(screen2, Endesga.debug_red, better_font40, 20, screen_height - 40, str(int(mx + scroll[0])) + ", " + str(int(my + scroll[1])), Endesga.black, 3)
     pygame.mouse.set_visible(False)
     pygame.draw.circle(screenUI, Endesga.greyL, (mx, my), 2)
