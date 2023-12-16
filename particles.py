@@ -3,6 +3,7 @@ import math
 from calcs import distance
 from calcs import normalize_angle
 from calcs import brightness
+from calcs import linear_gradient
 import random
 
 
@@ -205,6 +206,98 @@ class Glow:
         self.size -= self.decay * dt
         if self.size < self.min_size:
             return True
+
+
+class flame:
+    def __init__(self, x, y, rad, grow, cols, rise, wind, timer):
+        self.x = x
+        self.y = y
+        self.rad = rad
+        self.grow = grow
+        self.cols = cols
+        self.rise = rise
+        self.wind = wind
+        self.timer = timer
+        self.c = 0
+
+    def update(self, dt):
+        self.x += self.wind * dt
+        self.y -= self.rise * dt
+        self.rad += self.grow * dt
+        self.c += 0.01
+        self.timer += dt / 60
+        if self.c > 1:
+            return True
+
+    def draw(self, s, scr):
+        print(self.cols)
+        print(self.c)
+        pygame.draw.circle(s, linear_gradient(self.cols, self.c), [self.x - scr[0], self.y - scr[1]], self.rad + math.sin(self.timer))
+
+
+class ember:
+    def __init__(self, x, y, rad, shrink, cols, grav, wind, timer):
+        self.x = x
+        self.y = y
+        self.rad = rad
+        self.shrink = shrink
+        self.cols = cols
+        self.grav = grav
+        self.wind = wind
+        self.timer = timer
+        self.c = 0
+
+    def update(self, dt):
+        self.x += self.wind * dt
+        self.y += self.grav * dt
+        self.rad -= self.shrink * dt
+        self.c += 0.01
+        self.timer += dt / 60
+        if self.c > 1:
+            return True
+
+    def draw(self, s, scr):
+        pygame.draw.circle(s, linear_gradient(self.cols, self.c), [self.x - scr[0], self.y - scr[1]], self.rad + math.sin(self.timer))
+
+
+class torch:
+    def __init__(self, x, y, flame_rate, flame_grow, flame_rad, flame_rise, ember_rate, ember_shrink, ember_rad, gravity, wind, size, flame_cols, ember_cols):
+        self.x = x
+        self.y = y
+        self.flame_rate = flame_rate
+        self.flame_grow = flame_grow
+        self.flame_rad = flame_rad
+        self.flame_rise = flame_rise
+        self.ember_rate = ember_rate
+        self.ember_shrink = ember_shrink
+        self.ember_rad = ember_rad
+        self.gravity = gravity
+        self.wind = wind
+        self.size = size
+        self.flames = []
+        self.embers = []
+        self.flame_cols = flame_cols
+        self.ember_cols = ember_cols
+
+    def spawn(self):
+        if random.randint(0, self.flame_rate) == 0:
+            self.flames.append(flame(self.x, self.y, self.flame_rad, self.flame_grow, self.flame_cols, self.flame_rise, self.wind, random.uniform(0, math.pi * 2)))
+        if random.randint(0, self.ember_rate) == 0:
+            self.flames.append(flame(self.x, self.y, self.ember_rad, self.ember_shrink, self.ember_cols, self.gravity, self.wind, random.uniform(0, math.pi * 2)))
+    
+    def update(self, dt):
+        for fl in reversed(self.flames):
+            if fl.update(dt):
+                self.flames.remove(fl)
+        for em in reversed(self.embers):
+            if em.update(dt):
+                self.embers.remove(em)
+
+    def draw(self, s, scr):
+        for fl in self.flames:
+            fl.draw(s, scr)
+        for em in self.embers:
+            em.draw(s, scr)
 
 
 class Spark:

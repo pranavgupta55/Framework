@@ -85,12 +85,8 @@ def normalize(value, minValue, maxValue, doesCap=False):
     return output
 
 
-def cap(value, minValue, maxValue):
-    if value > maxValue:
-        value = maxValue
-    if value < minValue:
-        value = minValue
-    return value
+def clip(minVal, maxVal, val):
+    return min(maxVal, max(minVal, val))
 
 
 def point_to_line(point, two_points_of_line):
