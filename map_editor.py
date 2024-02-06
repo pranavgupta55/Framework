@@ -56,7 +56,7 @@ class Endesga:
 unprocessed_data = []
 full_list = []
 sorted_list = []
-file = 'layout.txt'
+file = 'layout1.txt'
 with open(file, 'r') as f:
     lines = f.readlines()
     for li in lines:
@@ -267,8 +267,9 @@ while running:
                 selected_block = tt.num
 
     # ---------------- Updating Screen
-    draw_text(screen2, Endesga.debug_red, better_font40, 20, screen_height - 70, str(int(clock.get_fps())), Endesga.black, 3)
-    draw_text(screen2, Endesga.debug_red, better_font40, 20, screen_height - 40, str(int(mx + scroll[0])) + ", " + str(int(my + scroll[1])), Endesga.black, 3)
+    draw_text(screen2, Endesga.debug_red, better_font40, 20, screen_height - 110, str(int(clock.get_fps())), Endesga.black, 3)
+    draw_text(screen2, Endesga.debug_red, better_font40, 20, screen_height - 70, str(int(mx + scroll[0])) + ", " + str(int(my + scroll[1])), Endesga.black, 3)
+    draw_text(screen2, Endesga.debug_red, better_font40, 20, screen_height - 40, "File: " + file, Endesga.black, 3)
     pygame.mouse.set_visible(False)
     pygame.draw.circle(screenUI, Endesga.greyL, (mx, my), 2)
     pygame.draw.circle(screenUI, Endesga.greyL, (mx, my), brush_size * tile_size, 1)

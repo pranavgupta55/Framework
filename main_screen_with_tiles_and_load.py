@@ -60,8 +60,8 @@ with open('layout1.txt') as f:
     for li in lines:
         unprocessed_data.append(li.strip("\n"))
 
-for line in unprocessed_data:
-    for char in line:
+for li in unprocessed_data:
+    for char in li:
         full_list.append(int(char))
 
 temp = []
