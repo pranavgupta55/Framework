@@ -1,6 +1,7 @@
 import math
 import random
 import colorsys
+import numpy as np
 
 
 def distance(point1, point2):
@@ -123,3 +124,35 @@ def circumcircle(vertices):
 
 def random_sign():
     return random.randint(0, 1) * 2 - 1
+
+
+def tanh(x):
+    return np.tanh(x)
+
+
+def tanh_prime(x):
+    return 1 - np.tanh(x) ** 2
+
+
+def reLu(x):
+    return (x > 0) * x
+
+
+def reLu_prime(x):
+    return x > 0
+
+
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+
+def sigmoid_prime(x):
+    return sigmoid(x) * (1 - sigmoid(x))
+
+
+def mse(y_true, y_pred):
+    return np.mean(np.power(y_true - y_pred, 2))
+
+
+def mse_prime(y_true, y_pred):
+    return 2 * (y_pred - y_true) / np.size(y_true)
