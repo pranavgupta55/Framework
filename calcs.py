@@ -68,11 +68,9 @@ def random_col():
 
 
 def linear_gradient(colors, normalizedZero2One):
-    percent = round(10000 * ((len(colors) - 1) * normalizedZero2One % 1)) / 10000
-    index = int(math.fabs((len(colors) - 1) * normalizedZero2One - 0.0000001))
-    return [int(colors[index][0] + percent * (colors[index + 1][0] - colors[index][0])),
-            int(colors[index][1] + percent * (colors[index + 1][1] - colors[index][1])),
-            int(colors[index][2] + percent * (colors[index + 1][2] - colors[index][2]))]
+    percent = (len(colors) - 1) * normalizedZero2One % 1
+    index = int((len(colors) - 1) * normalizedZero2One)
+    return [(int(colors[index][i] + percent * (colors[index + 1][i] - colors[index][i]))) for i in range(3)]
 
 
 def normalize(value, minValue, maxValue, doesCap=False):
