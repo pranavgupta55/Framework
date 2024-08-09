@@ -13,11 +13,7 @@ def ang(start_pos, end_pos):
 
 
 def normalize_angle(angle):
-    while angle >= math.pi * 2:
-        angle -= math.pi * 2
-    while angle <= 0:
-        angle += math.pi * 2
-    return angle
+    return angle % (2 * math.pi)
 
 
 def collide_circle(point1, point2, d):
@@ -156,3 +152,23 @@ def mse(y_true, y_pred):
 
 def mse_prime(y_true, y_pred):
     return 2 * (y_pred - y_true) / np.size(y_true)
+
+
+def draw_arrow(screen, start, end, color, pygameModel, thickness=3, arrowhead_length=10, arrowhead_angle=25):
+    # Draw the main line (shaft of the arrow)
+    pygameModel.draw.line(screen, color, start, end, thickness)
+
+    # Calculate the angle of the line
+    angle = math.atan2(end[1] - start[1], end[0] - start[0])
+
+    # Calculate the two points of the arrowhead
+    angle1 = angle + math.radians(arrowhead_angle)
+    angle2 = angle - math.radians(arrowhead_angle)
+
+    arrowhead_point1 = (end[0] - arrowhead_length * math.cos(angle1), end[1] - arrowhead_length * math.sin(angle1))
+
+    arrowhead_point2 = (end[0] - arrowhead_length * math.cos(angle2), end[1] - arrowhead_length * math.sin(angle2))
+
+    # Draw the two lines for the arrowhead
+    pygameModel.draw.line(screen, color, end, arrowhead_point1, thickness)
+    pygameModel.draw.line(screen, color, end, arrowhead_point2, thickness)
