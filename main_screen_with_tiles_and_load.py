@@ -55,7 +55,7 @@ class Endesga:
 unprocessed_data = []
 full_list = []
 sorted_list = []
-with open('layout1.txt') as f:
+with open('layout.txt') as f:
     lines = f.readlines()
     for li in lines:
         unprocessed_data.append(li.strip("\n"))
@@ -129,7 +129,9 @@ while running:
 
     # ---------------- Updating Screen
     if toggle:
-        draw_text(screenUI, Endesga.debug_red, better_font40, 20, screen_height - 40, str(round(clock.get_fps())), Endesga.black, 3)
+        items = [round(clock.get_fps())]
+        for i, item in enumerate(items):
+            draw_text(screenUI, Endesga.debug_red, better_font40, 20, screen_height - (40 + 30 * i), str(item), Endesga.black, 3)
         pygame.mouse.set_visible(False)
         pygame.draw.circle(screenUI, Endesga.black, (mx + 1, my + 1), 5, 1)
         pygame.draw.circle(screenUI, Endesga.white, (mx, my), 5, 1)

@@ -56,7 +56,7 @@ class Endesga:
 unprocessed_data = []
 full_list = []
 sorted_list = []
-file = 'layout1.txt'
+file = 'layout.txt'
 with open(file, 'r') as f:
     lines = f.readlines()
     for li in lines:

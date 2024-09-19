@@ -3,6 +3,7 @@ import math
 import time
 import random
 from text import draw_text
+from text import simpleText
 from calcs import collide_circle
 from calcs import point_to_line
 
@@ -52,38 +53,6 @@ class Endesga:
     sebastian_lague_light_purple = [137, 133, 181]
 
 
-unprocessed_data = []
-full_list = []
-sorted_list = []
-with open('layout.txt') as f:
-    lines = f.readlines()
-    for li in lines:
-        unprocessed_data.append(li.strip("\n"))
-
-for line in unprocessed_data:
-    for char in line:
-        full_list.append(int(char))
-
-temp = []
-for i, char in enumerate(full_list):
-    temp.append(char)
-    if (i + 1) % len(unprocessed_data[0]) == 0:
-        sorted_list.append(temp)
-        temp = []
-
-tile_size = 20
-tile_rects = []
-all_rects = []
-ty = 0
-for row in sorted_list:
-    tx = 0
-    for tile in row:
-        if tile == 1:
-            tile_rects.append(pygame.rect.Rect(tile_size * tx, tile_size * ty, tile_size, tile_size))
-        all_rects.append(pygame.rect.Rect(tile_size * tx, tile_size * ty, tile_size, tile_size))
-        tx += 1
-    ty += 1
-
 # Defining some more variables to use in the game loop
 oscillating_random_thing = 0
 ShakeCounter = 0
@@ -131,12 +100,6 @@ while running:
         if event.type == pygame.KEYUP:
             pass
 
-    for t in tile_rects:
-        pygame.draw.rect(screen2, Endesga.greyL, (t.x - t.width / 7, t.y + t.height / 7, t.width, t.height))
-
-    for t in tile_rects:
-        pygame.draw.rect(screen2, Endesga.white, t)
-
     for i, pair in enumerate(pairs):
         pygame.draw.line(screen2, Endesga.white, pairs[i][0], pairs[i][1])
 
@@ -144,7 +107,7 @@ while running:
         for p in pair:
             pygame.draw.circle(screen2, Endesga.debug_red, p, point_size)
             if collide_circle(p, (mx, my), point_size * 1.5):
-                draw_text(screenUI, Endesga.white, Endesga.black, better_font40, p[0], p[1], False, str(p), 2, False, None)
+                simpleText(screenUI, Endesga.white, better_font40, p[0], p[1], str(p))
 
     for pair in pairs:
         if point_to_line((mx, my), pair)[0] < dist:
@@ -152,7 +115,7 @@ while running:
     pygame.draw.circle(screen2, Endesga.white, closest, point_size * 2)
 
     # ---------------- Updating Screen
-    draw_text(screenUI, Endesga.white, Endesga.black, better_font40, 20, screen_height - 40, False, f"Distance to nearest line: {int(dist)}", 2, False, None)
+    simpleText(screen2, Endesga.white, better_font40, 20, screen_height - 40, f"Distance to nearest line: {int(dist)}")
     pygame.mouse.set_visible(False)
     pygame.draw.circle(screenUI, Endesga.white, (mx, my), 5, 1)
     screen.blit(screen2, (shake[0], shake[1]))

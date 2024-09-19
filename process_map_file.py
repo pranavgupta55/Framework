@@ -1,7 +1,7 @@
 unprocessed_data = []
 full_list = []
 sorted_list = []
-with open('layout1.txt') as f:
+with open('layout.txt') as f:
     lines = f.readlines()
     for li in lines:
         unprocessed_data.append(li.strip("\n"))
