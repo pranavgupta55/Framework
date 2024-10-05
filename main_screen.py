@@ -94,7 +94,7 @@ while running:
     # ---------------- Updating Screen
     if toggle:
         items = {round(clock.get_fps()): None,
-                }
+                 }
         for i, label in enumerate(items.keys()):
             string = str(label)
             if items[label] is not None:
