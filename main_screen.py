@@ -93,12 +93,12 @@ while running:
 
     # ---------------- Updating Screen
     if toggle:
-        items = {None: round(clock.get_fps()),
-                 }
+        items = {round(clock.get_fps()): None,
+                }
         for i, label in enumerate(items.keys()):
-            string = str(items[label])
-            if label is not None:
-                string = f"{label}: " + string
+            string = str(label)
+            if items[label] is not None:
+                string = f"{items[label]}: " + string
             draw_text(screenUI, Endesga.debug_red, better_font40, 20, screen_height - (40 + 30 * i), string, Endesga.black, 3)
         pygame.mouse.set_visible(False)
         pygame.draw.circle(screenUI, Endesga.black, (mx + 1, my + 1), 5, 1)
