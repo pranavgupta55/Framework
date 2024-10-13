@@ -7,16 +7,17 @@ from text import draw_text
 pygame.init()
 
 # ---------------- Setting up the screen, assigning some global variables, and loading text fonts
-screen = pygame.display.set_mode((1050, 700))
+screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 clock = pygame.time.Clock()
 fps = 60
 screen_width = screen.get_width()
 screen_height = screen.get_height()
+scaleDownFactor = 3
 screen_center = [screen_width / 2, screen_height / 2]
-screen2 = pygame.Surface((screen_width, screen_height)).convert_alpha()
-screenT = pygame.Surface((screen_width, screen_height)).convert_alpha()
+screen2 = pygame.Surface((screen_width / scaleDownFactor, screen_height / scaleDownFactor)).convert_alpha()
+screenT = pygame.Surface((screen_width / scaleDownFactor, screen_height / scaleDownFactor)).convert_alpha()
 screenT.set_alpha(100)
-screenUI = pygame.Surface((screen_width, screen_height)).convert_alpha()
+screenUI = pygame.Surface((screen_width / scaleDownFactor, screen_height / scaleDownFactor)).convert_alpha()
 timer = 0
 shake = [0, 0]
 shake_strength = 3
@@ -25,7 +26,10 @@ font15 = pygame.font.Font("freesansbold.ttf", 15)
 font20 = pygame.font.Font("freesansbold.ttf", 20)
 font30 = pygame.font.Font("freesansbold.ttf", 30)
 font40 = pygame.font.Font("freesansbold.ttf", 40)
+better_font20 = pygame.font.SysFont("keyboard.ttf", 20)
+better_font30 = pygame.font.SysFont("keyboard.ttf", 30)
 better_font40 = pygame.font.SysFont("keyboard.ttf", 40)
+better_font_adaptive = pygame.font.SysFont("keyboard.ttf", int(40 / (scaleDownFactor ** (1 / 1.5))))
 font50 = pygame.font.Font("freesansbold.ttf", 50)
 font100 = pygame.font.Font("freesansbold.ttf", 100)
 
@@ -52,6 +56,11 @@ class Endesga:
     network_red = [127, 45, 41]
 
 
+class FireCols:
+    cols = [[255, 242, 157], [255, 212, 124], [255, 169, 70], [254, 128, 3], [230, 106, 37], [179, 46, 19], [126, 19, 6], [70, 2, 14]]
+    colsReversed = [[70, 2, 14], [126, 19, 6], [179, 46, 19], [230, 106, 37], [254, 128, 3], [255, 169, 70], [255, 212, 124], [255, 242, 157]]
+
+
 # Defining some more variables to use in the game loop
 oscillating_random_thing = 0
 ShakeCounter = 0
@@ -65,6 +74,7 @@ while running:
 
     # ---------------- Reset Variables and Clear screens
     mx, my = pygame.mouse.get_pos()
+    mx, my = mx / scaleDownFactor, my / scaleDownFactor
     screen.fill(Endesga.my_blue)
     screen2.fill(Endesga.my_blue)
     screenT.fill((0, 0, 0, 0))
@@ -99,12 +109,12 @@ while running:
             string = str(label)
             if items[label] is not None:
                 string = f"{items[label]}: " + string
-            draw_text(screenUI, Endesga.debug_red, better_font40, 20, screen_height - (40 + 30 * i), string, Endesga.black, 3)
+            draw_text(screenUI, Endesga.debug_red, better_font_adaptive, 5, screen_height / scaleDownFactor - (30 + 30 * i) / (scaleDownFactor ** (1 / 1.5)), string, Endesga.black, int(3 / scaleDownFactor), antiAliasing=False)
         pygame.mouse.set_visible(False)
-        pygame.draw.circle(screenUI, Endesga.black, (mx + 1, my + 1), 5, 1)
-        pygame.draw.circle(screenUI, Endesga.white, (mx, my), 5, 1)
-    screen.blit(screen2, (shake[0], shake[1]))
-    screen.blit(screenT, (0, 0))
-    screen.blit(screenUI, (0, 0))
+        pygame.draw.circle(screenUI, Endesga.black, (mx + 1, my + 1), 2, 1)
+        pygame.draw.circle(screenUI, Endesga.white, (mx, my), 2, 1)
+    screen.blit(pygame.transform.scale(screen2, (screen_width, screen_height)), (shake[0], shake[1]))
+    screen.blit(pygame.transform.scale(screenT, (screen_width, screen_height)), (shake[0], shake[1]))
+    screen.blit(pygame.transform.scale(screenUI, (screen_width, screen_height)), (0, 0))
     pygame.display.update()
     clock.tick(fps)
