@@ -210,7 +210,7 @@ class Glow:
 
 
 class Torch:
-    def __init__(self, x, y, flameColsDark2Light, smoke_cols_Dark2Light, ember_cols_Dark2Light, numFlames=6, innerFlameSize=10, flameSizeMaxSpacing=30, flameGrowShrink=10, flameFreq=0.1, smoke_rate=0.5, smoke_grow=0.1, smoke_rad=2, smoke_rise=0.01, ember_rate=0.4, ember_shrink=0.08, ember_rad=3, emberStartingVels=(2, 3), gravity=0.1, wind=0.05, wind_favor=1.2):
+    def __init__(self, x, y, flameColsDark2Light, smoke_cols_Dark2Light, ember_cols_Dark2Light, numFlames=6, innerFlameSize=10, flameSizeMaxSpacing=30, flameGrowShrink=10, flameFreq=0.1, smoke_rate=0.5, smoke_grow=0.1, smoke_rad=2, smoke_rise=0.01, ember_rate=0.4, ember_shrink=0.08, ember_rad=3, emberStartingVels=(2, 3), glowingEmbers=True, gravity=0.1, wind=0.05, wind_favor=1.2):
         self.x = x
         self.y = y
 
@@ -229,6 +229,7 @@ class Torch:
         self.ember_shrink = ember_shrink
         self.ember_rad = ember_rad
         self.emberStartingVels = emberStartingVels
+        self.glowingEmbers = glowingEmbers
 
         self.gravity = gravity
         self.wind = wind
@@ -244,18 +245,22 @@ class Torch:
         self.createFlames()
 
     def createFlames(self):
+        startingOffset = random.uniform(0, math.pi * 2)
         for i in range(self.numFlames):
             # Fancy scaling
-            quadratic_scale = ((i / (self.numFlames - 1)) ** 3 + (i / (self.numFlames - 1)) ** 1.2) / 2
+            quadratic_scale = ((i / (self.numFlames - 1)) ** 4 + (i / (self.numFlames - 1)) ** 1.2) / 2
             size = self.innerFlameSize + quadratic_scale * self.flameSizeMaxSpacing
             # Pass the flame's size and index, so each flame can manage its own size and behavior
-            self.flames.append(Flame(self.x, self.y, size, self.flameGrowShrink, self.flameFreq, self.flameColsDark2Light, i, self.numFlames))
+            self.flames.append(Flame(self.x, self.y, size, self.flameGrowShrink, self.flameFreq, self.flameColsDark2Light, i, self.numFlames, startingOffset))
 
     def spawn(self):
         if random.uniform(0, 1) < self.smoke_rate:
             self.smokes.append(Smoke(self.x, self.y, random.uniform(self.smoke_rad * 0.5, self.smoke_rad * 1.2), self.smoke_grow, self.smoke_cols, self.smoke_rise, self.wind, self.wind_favor, random.uniform(1, 2)))
         if random.uniform(0, 1) < self.ember_rate:
-            self.smokes.append(Ember(self.x, self.y, random.uniform(self.ember_rad * 0.5, self.ember_rad * 1.2), self.ember_shrink, self.ember_cols, self.gravity, self.wind, self.wind_favor, self.emberStartingVels, random.uniform(1, 2)))
+            newEmber = Ember(self.x, self.y, random.uniform(self.ember_rad * 0.5, self.ember_rad * 1.2), self.ember_shrink, self.ember_cols, self.gravity, self.wind, self.wind_favor, self.emberStartingVels, random.uniform(1, 2))
+            if self.glowingEmbers:
+                newEmber.flame = Flame(newEmber.x, newEmber.y, newEmber.rad * 2, newEmber.rad, self.flameFreq, self.flameColsDark2Light, 0, 1, random.uniform(0, math.pi * 2))
+            self.embers.append(newEmber)
 
     def update(self, dt):
         for sm in reversed(self.smokes):
@@ -279,7 +284,7 @@ class Torch:
 
 
 class Flame:
-    def __init__(self, x, y, size, growShrink, freq, colRange, index, totalFlameCount):
+    def __init__(self, x, y, size, growShrink, freq, colRange, index, totalFlameCount, startingOffset):
         self.x = x
         self.y = y
         self.size = size
@@ -288,11 +293,11 @@ class Flame:
         self.colRange = colRange
         self.index = index  # track which ring this is (to adjust transparency, etc.)
         self.totalFlameCount = totalFlameCount
-        self.t = random.uniform(0, (math.pi * 2) / freq / 400)
+        self.t = random.uniform(0, (math.pi * 2) / freq / 400) + startingOffset
 
         # Calculate opacity of the ring
-        maxOpacity = 100
-        minOpacity = 10
+        maxOpacity = 50
+        minOpacity = 5
         self.alpha = maxOpacity - (maxOpacity - minOpacity) * (self.index / self.totalFlameCount)
 
     def update(self, dt):
@@ -301,7 +306,7 @@ class Flame:
     def draw(self, s, scr):
         func = (math.sin(3 * self.t) + math.sin(7 * self.t)) / 4
 
-        color_weight = func + 0.5  # Normalize "func" to [0, 1] to get the interpolation factor
+        color_weight = ((func + 0.5) + (self.index / self.totalFlameCount)) / 2 # Normalize "func" to [0, 1] to get the interpolation factor, also adjust hue based on ring index
         color = linear_gradient(self.colRange, color_weight)
 
         # Calculate the oscillating size of the flame
@@ -347,7 +352,7 @@ class Smoke:
 
 
 class Ember:
-    def __init__(self, x, y, rad, shrink, cols, grav, wind, wind_favor, emberStartingVels, timer):
+    def __init__(self, x, y, rad, shrink, cols, grav, wind, wind_favor, emberStartingVels, timer, flame=None):
         self.x = x
         self.y = y
         self.vel = [random.uniform(-emberStartingVels[0], emberStartingVels[0]), random.uniform(-emberStartingVels[1], emberStartingVels[1] / 3)]
@@ -360,6 +365,7 @@ class Ember:
         self.emberStartingVels = emberStartingVels
         self.timer = timer
         self.maxTimer = copy.deepcopy(timer)
+        self.flame = flame
 
     def update(self, dt):
         self.vel[0] += random.uniform(-self.wind, self.wind_favor * self.wind) * dt
@@ -370,11 +376,17 @@ class Ember:
         self.y += self.vel[1]
         self.rad -= self.shrink * dt
         self.timer -= dt / 60
-        if self.timer < 0:
+        if self.flame is not None:
+            self.flame.update(dt)
+            self.flame.x, self.flame.y = self.x, self.y
+            self.flame.size = int(self.rad * 2 + 2)
+        if self.timer < 0 or self.rad < 0:
             return True
 
     def draw(self, s, scr):
         pygame.draw.circle(s, linear_gradient(self.cols, self.timer / self.maxTimer), [self.x - scr[0], self.y - scr[1]], self.rad + math.sin(self.timer))
+        if self.flame is not None:
+            self.flame.draw(s, scr)
 
 
 class Spark:
