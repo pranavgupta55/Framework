@@ -13,7 +13,7 @@ clock = pygame.time.Clock()
 fps = 60
 screen_width = screen.get_width()
 screen_height = screen.get_height()
-scaleDownFactor = 3
+scaleDownFactor = 6
 screen_center = [screen_width / 2, screen_height / 2]
 screen2 = pygame.Surface((screen_width / scaleDownFactor, screen_height / scaleDownFactor)).convert_alpha()
 screenT = pygame.Surface((screen_width / scaleDownFactor, screen_height / scaleDownFactor)).convert_alpha()
@@ -70,9 +70,8 @@ toggle = True
 click = False
 
 torchImg = pygame.image.load("torchImg.png").convert_alpha()
-torchSur = pygame.Surface((20, 32), pygame.SRCALPHA)
-torchSur.blit(torchImg, (0, 0))
-torch = Torch(screen_center[0] / scaleDownFactor, screen_center[1] / scaleDownFactor, FireCols.cols[0:5], FireCols.colsReversed, FireCols.colsReversed)
+torchImgScale = (14, 22) # optional param, it has a default
+torch = Torch(screen_center[0] / scaleDownFactor, screen_center[1] / scaleDownFactor, torchImg, FireCols.cols[0:5], FireCols.colsReversed, FireCols.colsReversed, torchImgScale=torchImgScale)
 
 # ---------------- Main Game Loop
 last_time = time.time()
@@ -108,10 +107,9 @@ while running:
         if event.type == pygame.KEYUP:
             pass
 
-    torch.update(dt)
     torch.spawn()
-    screen2.blit(torchSur, (torch.x - 10, torch.y + 2))
-    torch.draw(screen2, (0, 0))
+    torch.update(dt, fps)
+    torch.draw(screen2, shake)
 
     # ---------------- Updating Screen
     if toggle:
