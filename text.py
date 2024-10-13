@@ -40,7 +40,7 @@ def getFontSizeWithWrap(font_, text_, max_len):
     return [len(out), largest_len]
 
 
-def draw_text(screen_, color_, font_, x_, y_, text_, color2_=None, shadow_size_=0, wrap_=False, max_len=None, centered_=False):
+def draw_text(screen_, color_, font_, x_, y_, text_, color2_=None, shadow_size_=0, wrap_=False, max_len=None, centered_=False, antiAliasing=True):
     if wrap_:
         if pygame.font.Font.size(font_, text_)[0] > max_len:
             all_words = []
@@ -65,28 +65,28 @@ def draw_text(screen_, color_, font_, x_, y_, text_, color2_=None, shadow_size_=
             if centered_:
                 for i, row in enumerate(output):
                     if shadow_size_ != 0:
-                        screen_.blit(font_.render(row, True, color2_), (x_ - pygame.font.Font.size(font_, row)[0] / 2 + shadow_size_, y_ + shadow_size_ + ((i - len(output) / 2) * 1.1 * pygame.font.Font.size(font_, row)[1])))
-                    screen_.blit(font_.render(row, True, color_), (x_ - pygame.font.Font.size(font_, row)[0] / 2, y_ + ((i - len(output) / 2) * 1.1 * pygame.font.Font.size(font_, row)[1])))
+                        screen_.blit(font_.render(row, antiAliasing, color2_), (x_ - pygame.font.Font.size(font_, row)[0] / 2 + shadow_size_, y_ + shadow_size_ + ((i - len(output) / 2) * 1.1 * pygame.font.Font.size(font_, row)[1])))
+                    screen_.blit(font_.render(row, antiAliasing, color_), (x_ - pygame.font.Font.size(font_, row)[0] / 2, y_ + ((i - len(output) / 2) * 1.1 * pygame.font.Font.size(font_, row)[1])))
             else:
                 for i, row in enumerate(output):
                     if shadow_size_ != 0:
-                        screen_.blit(font_.render(row, True, color2_), (x_ + shadow_size_, y_ + shadow_size_ + (i * 1.1 * pygame.font.Font.size(font_, row)[1])))
-                    screen_.blit(font_.render(row, True, color_), (x_, y_ + (i * 1.1 * pygame.font.Font.size(font_, row)[1])))
+                        screen_.blit(font_.render(row, antiAliasing, color2_), (x_ + shadow_size_, y_ + shadow_size_ + (i * 1.1 * pygame.font.Font.size(font_, row)[1])))
+                    screen_.blit(font_.render(row, antiAliasing, color_), (x_, y_ + (i * 1.1 * pygame.font.Font.size(font_, row)[1])))
         else:
             if centered_:
                 if shadow_size_ != 0:
-                    screen_.blit(font_.render(text_, True, color2_), (x_ - pygame.font.Font.size(font_, text_)[0] / 2 + shadow_size_, y_ - pygame.font.Font.size(font_, text_)[1] / 2 + shadow_size_))
-                screen_.blit(font_.render(text_, True, color_), (x_ - pygame.font.Font.size(font_, text_)[0] / 2, y_ - pygame.font.Font.size(font_, text_)[1] / 2))
+                    screen_.blit(font_.render(text_, antiAliasing, color2_), (x_ - pygame.font.Font.size(font_, text_)[0] / 2 + shadow_size_, y_ - pygame.font.Font.size(font_, text_)[1] / 2 + shadow_size_))
+                screen_.blit(font_.render(text_, antiAliasing, color_), (x_ - pygame.font.Font.size(font_, text_)[0] / 2, y_ - pygame.font.Font.size(font_, text_)[1] / 2))
             else:
                 if shadow_size_ != 0:
-                    screen_.blit(font_.render(text_, True, color2_), (x_ + shadow_size_, y_ + shadow_size_))
-                screen_.blit(font_.render(text_, True, color_), (x_, y_))
+                    screen_.blit(font_.render(text_, antiAliasing, color2_), (x_ + shadow_size_, y_ + shadow_size_))
+                screen_.blit(font_.render(text_, antiAliasing, color_), (x_, y_))
     else:
         if centered_:
             if shadow_size_ != 0:
-                screen_.blit(font_.render(text_, True, color2_), (x_ - pygame.font.Font.size(font_, text_)[0] / 2 + shadow_size_, y_ - pygame.font.Font.size(font_, text_)[1] / 2 + shadow_size_))
-            screen_.blit(font_.render(text_, True, color_), (x_ - pygame.font.Font.size(font_, text_)[0] / 2, y_ - pygame.font.Font.size(font_, text_)[1] / 2))
+                screen_.blit(font_.render(text_, antiAliasing, color2_), (x_ - pygame.font.Font.size(font_, text_)[0] / 2 + shadow_size_, y_ - pygame.font.Font.size(font_, text_)[1] / 2 + shadow_size_))
+            screen_.blit(font_.render(text_, antiAliasing, color_), (x_ - pygame.font.Font.size(font_, text_)[0] / 2, y_ - pygame.font.Font.size(font_, text_)[1] / 2))
         else:
             if shadow_size_ != 0:
-                screen_.blit(font_.render(text_, True, color2_), (x_ + shadow_size_, y_ + shadow_size_))
-            screen_.blit(font_.render(text_, True, color_), (x_, y_))
+                screen_.blit(font_.render(text_, antiAliasing, color2_), (x_ + shadow_size_, y_ + shadow_size_))
+            screen_.blit(font_.render(text_, antiAliasing, color_), (x_, y_))
