@@ -210,7 +210,7 @@ class Glow:
 
 
 class Torch:
-    def __init__(self, x, y, flameColsDark2Light, smoke_cols_Dark2Light, ember_cols_Dark2Light, numFlames=6, innerFlameSize=10, flameSizeMaxSpacing=30, flameGrowShrink=10, flameFreq=0.1, smoke_rate=0.5, smoke_grow=0.1, smoke_rad=2, smoke_rise=0.01, ember_rate=0.4, ember_shrink=0.08, ember_rad=3, emberStartingVels=(2, 3), glowingEmbers=True, gravity=0.1, wind=0.05, wind_favor=1.2):
+    def __init__(self, x, y, torchImg, flameColsDark2Light, smoke_cols_Dark2Light, ember_cols_Dark2Light, torchImgScale=(14, 22), numFlames=6, innerFlameSize=10, flameSizeMaxSpacing=30, flameGrowShrink=10, flameFreq=0.1, smoke_rate=0.5, smoke_grow=0.1, smoke_rad=2, smoke_rise=0.01, ember_rate=0.4, ember_shrink=0.08, ember_rad=3, emberStartingVels=(2, 3), glowingEmbers=True, gravity=0.1, wind=0.05, wind_favor=1.2):
         self.x = x
         self.y = y
 
@@ -244,6 +244,11 @@ class Torch:
         self.flames = []
         self.createFlames()
 
+        self.torchImg = pygame.transform.scale(torchImg.convert_alpha(), torchImgScale)
+        self.torchSur = pygame.Surface((self.torchImg.get_width(), self.torchImg.get_height()), pygame.SRCALPHA)
+        self.torchSur.blit(self.torchImg, (0, 0))
+        self.torchSurCenteringOffset = [-int(self.torchSur.get_width() / 2), int(self.torchSur.get_height() / 16)]
+
     def createFlames(self):
         startingOffset = random.uniform(0, math.pi * 2)
         for i in range(self.numFlames):
@@ -262,12 +267,12 @@ class Torch:
                 newEmber.flame = Flame(newEmber.x, newEmber.y, newEmber.rad * 2, newEmber.rad, self.flameFreq, self.flameColsDark2Light, 0, 1, random.uniform(0, math.pi * 2))
             self.embers.append(newEmber)
 
-    def update(self, dt):
+    def update(self, dt, fps):
         for sm in reversed(self.smokes):
-            if sm.update(dt):
+            if sm.update(dt, fps):
                 self.smokes.remove(sm)
         for em in reversed(self.embers):
-            if em.update(dt):
+            if em.update(dt, fps):
                 self.embers.remove(em)
         for flm in self.flames:
             flm.x = self.x
@@ -275,6 +280,7 @@ class Torch:
             flm.update(dt)
 
     def draw(self, s, scr):
+        s.blit(self.torchSur, (self.x + self.torchSurCenteringOffset[0], self.y + self.torchSurCenteringOffset[1]))
         for flm in reversed(self.flames):
             flm.draw(s, scr)
         for sm in self.smokes:
@@ -337,13 +343,13 @@ class Smoke:
         self.timer = timer
         self.maxTimer = copy.deepcopy(timer)
 
-    def update(self, dt):
+    def update(self, dt, fps):
         self.vel[0] += random.uniform(-self.wind, self.wind_favor * self.wind) * dt
         self.vel[1] += random.uniform(-4 * self.rise, self.rise) * dt
-        self.x += self.vel[0]
-        self.y += self.vel[1]
+        self.x += self.vel[0] * dt
+        self.y += self.vel[1] * dt
         self.rad += self.grow * dt
-        self.timer -= dt / 60
+        self.timer -= dt / fps
         if self.timer < 0:
             return True
 
@@ -367,7 +373,7 @@ class Ember:
         self.maxTimer = copy.deepcopy(timer)
         self.flame = flame
 
-    def update(self, dt):
+    def update(self, dt, fps):
         self.vel[0] += random.uniform(-self.wind, self.wind_favor * self.wind) * dt
         self.vel[1] += random.uniform(-self.grav, 4 * self.grav) * dt
         self.vel[0] *= 0.95
@@ -375,7 +381,7 @@ class Ember:
         self.x += self.vel[0]
         self.y += self.vel[1]
         self.rad -= self.shrink * dt
-        self.timer -= dt / 60
+        self.timer -= dt / fps
         if self.flame is not None:
             self.flame.update(dt)
             self.flame.x, self.flame.y = self.x, self.y
