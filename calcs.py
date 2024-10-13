@@ -65,6 +65,7 @@ def random_col():
 
 
 def linear_gradient(colors, normalizedZero2One):
+    normalizedZero2One = clip(0, 1 - 1e-3, normalizedZero2One)
     percent = (len(colors) - 1) * normalizedZero2One % 1
     index = min(int((len(colors) - 1) * normalizedZero2One), len(colors) - 1)
     return [(int(colors[index][i] + percent * (colors[index + 1][i] - colors[index][i]))) for i in range(3)]
