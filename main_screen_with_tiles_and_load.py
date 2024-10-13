@@ -3,7 +3,6 @@ import math
 import time
 import random
 from text import draw_text
-from particles import Torch, Flame
 
 pygame.init()
 
@@ -146,7 +145,7 @@ while running:
             string = str(label)
             if items[label] is not None:
                 string = f"{items[label]}: " + string
-            draw_text(screenUI, Endesga.debug_red, better_font_adaptive, 5, screen_height / scaleDownFactor - (30 + 30 * i) / (scaleDownFactor ** (1 / 1.5)), string, Endesga.black, int(3 / scaleDownFactor), antiAliasing=False)
+            draw_text(screenUI, Endesga.debug_red, better_font_adaptive, 5, screen_height / scaleDownFactor - (30 + 30 * i) / (scaleDownFactor ** (1 / 1.5)), string, Endesga.black, int(3 / scaleDownFactor) + int(3 / scaleDownFactor) < 1, antiAliasing=False)
         pygame.mouse.set_visible(False)
         pygame.draw.circle(screenUI, Endesga.black, (mx + 1, my + 1), 2, 1)
         pygame.draw.circle(screenUI, Endesga.white, (mx, my), 2, 1)
