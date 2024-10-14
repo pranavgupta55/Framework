@@ -48,7 +48,7 @@ class Endesga:
     grey = [150, 150, 150]
     greyD = [100, 100, 100]
     greyVD = [50, 50, 50]
-    greyVVDB = [20, 25, 30]
+    greyVVDB = [5, 10, 15]
     very_light_blue = [199, 207, 221]
     my_blue = [32, 36, 46]
     debug_red = [255, 96, 141]
