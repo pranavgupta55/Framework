@@ -247,7 +247,7 @@ class Torch:
         self.torchImg = pygame.transform.scale(torchImg.convert_alpha(), torchImgScale)
         self.torchSur = pygame.Surface((self.torchImg.get_width(), self.torchImg.get_height()), pygame.SRCALPHA)
         self.torchSur.blit(self.torchImg, (0, 0))
-        self.torchSurCenteringOffset = [-int(self.torchSur.get_width() / 2), int(self.torchSur.get_height() / 16)]
+        self.torchSurCenteringOffset = [-int(self.torchSur.get_width() / 1.7), int(self.torchSur.get_height() / 16)]
 
     def createFlames(self):
         startingOffset = random.uniform(0, math.pi * 2)
