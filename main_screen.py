@@ -3,6 +3,7 @@ import math
 import time
 import random
 from text import draw_text
+from fontDict import fonts
 
 pygame.init()
 
@@ -21,17 +22,10 @@ screenUI = pygame.Surface((screen_width / scaleDownFactor, screen_height / scale
 timer = 0
 shake = [0, 0]
 shake_strength = 3
-pygame.font.get_fonts()
-font15 = pygame.font.Font("freesansbold.ttf", 15)
-font20 = pygame.font.Font("freesansbold.ttf", 20)
-font30 = pygame.font.Font("freesansbold.ttf", 30)
-font40 = pygame.font.Font("freesansbold.ttf", 40)
-better_font20 = pygame.font.SysFont("keyboard.ttf", 20)
-better_font30 = pygame.font.SysFont("keyboard.ttf", 30)
-better_font40 = pygame.font.SysFont("keyboard.ttf", 40)
-better_font_adaptive = pygame.font.SysFont("keyboard.ttf", int(40 / (scaleDownFactor ** (1 / 1.5))))
-font50 = pygame.font.Font("freesansbold.ttf", 50)
-font100 = pygame.font.Font("freesansbold.ttf", 100)
+montserratRegularAdaptive = fonts[f"regular{int(25 / (scaleDownFactor ** (1 / 1.5)))}"]
+montserratExtralightAdaptive = fonts[f"extralight{int(25 / (scaleDownFactor ** (1 / 1.5)))}"]
+montserratBoldAdaptive = fonts[f"bold{int(25 / (scaleDownFactor ** (1 / 1.5)))}"]
+montserratThinAdaptive = fonts[f"thin{int(25 / (scaleDownFactor ** (1 / 1.5)))}"]
 
 
 class Endesga:
@@ -109,7 +103,7 @@ while running:
             string = str(label)
             if items[label] is not None:
                 string = f"{items[label]}: " + string
-            draw_text(screenUI, Endesga.debug_red, better_font_adaptive, 5, screen_height / scaleDownFactor - (30 + 30 * i) / (scaleDownFactor ** (1 / 1.5)), string, Endesga.black, int(3 / scaleDownFactor) + int(3 / scaleDownFactor) < 1, antiAliasing=False)
+            draw_text(screenUI, Endesga.debug_red, montserratRegularAdaptive, 5, screen_height / scaleDownFactor - (30 + 25 * i) / (scaleDownFactor ** (1 / 1.8)), string, Endesga.black, int(3 / scaleDownFactor) + int(3 / scaleDownFactor) < 1, antiAliasing=False)
         pygame.mouse.set_visible(False)
         pygame.draw.circle(screenUI, Endesga.black, (mx + 1, my + 1), 2, 1)
         pygame.draw.circle(screenUI, Endesga.white, (mx, my), 2, 1)
