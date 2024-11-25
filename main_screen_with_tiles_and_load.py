@@ -11,14 +11,14 @@ pygame.init()
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 clock = pygame.time.Clock()
 fps = 60
-screen_width = screen.get_width()
-screen_height = screen.get_height()
 scaleDownFactor = 3
+screen_width = int(screen.get_width() / scaleDownFactor)
+screen_height = int(screen.get_height() / scaleDownFactor)
 screen_center = [screen_width / 2, screen_height / 2]
-screen2 = pygame.Surface((screen_width / scaleDownFactor, screen_height / scaleDownFactor)).convert_alpha()
-screenT = pygame.Surface((screen_width / scaleDownFactor, screen_height / scaleDownFactor)).convert_alpha()
+screen2 = pygame.Surface((screen_width, screen_height)).convert_alpha()
+screenT = pygame.Surface((screen_width, screen_height)).convert_alpha()
 screenT.set_alpha(100)
-screenUI = pygame.Surface((screen_width / scaleDownFactor, screen_height / scaleDownFactor)).convert_alpha()
+screenUI = pygame.Surface((screen_width, screen_height)).convert_alpha()
 timer = 0
 shake = [0, 0]
 shake_strength = 3
@@ -139,12 +139,12 @@ while running:
             string = str(label)
             if items[label] is not None:
                 string = f"{items[label]}: " + string
-            draw_text(screenUI, Endesga.debug_red, montserratRegularAdaptive, 5, screen_height / scaleDownFactor - (30 + 25 * i) / (scaleDownFactor ** (1 / 1.8)), string, Endesga.black, int(3 / scaleDownFactor) + int(3 / scaleDownFactor) < 1, antiAliasing=False)
+            draw_text(screenUI, Endesga.debug_red, montserratRegularAdaptive, 5, screen_height - (30 + 25 * i) / (scaleDownFactor ** (1 / 1.8)), string, Endesga.black, int(3 / scaleDownFactor) + int(3 / scaleDownFactor) < 1, antiAliasing=False)
         pygame.mouse.set_visible(False)
         pygame.draw.circle(screenUI, Endesga.black, (mx + 1, my + 1), 2, 1)
         pygame.draw.circle(screenUI, Endesga.white, (mx, my), 2, 1)
-    screen.blit(pygame.transform.scale(screen2, (screen_width, screen_height)), (shake[0], shake[1]))
-    screen.blit(pygame.transform.scale(screenT, (screen_width, screen_height)), (shake[0], shake[1]))
-    screen.blit(pygame.transform.scale(screenUI, (screen_width, screen_height)), (0, 0))
+    screen.blit(pygame.transform.scale(screen2, (screen_width * scaleDownFactor, screen_height * scaleDownFactor)), (shake[0], shake[1]))
+    screen.blit(pygame.transform.scale(screenT, (screen_width * scaleDownFactor, screen_height * scaleDownFactor)), (shake[0], shake[1]))
+    screen.blit(pygame.transform.scale(screenUI, (screen_width * scaleDownFactor, screen_height * scaleDownFactor)), (0, 0))
     pygame.display.update()
     clock.tick(fps)
