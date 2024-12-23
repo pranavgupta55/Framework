@@ -1,92 +1,48 @@
-import pygame
-
-
-def getFontSize(font_, text_, color_):
-    sprite = font_.render(text_, True, color_)
+def getFontSize(font, text):
+    sprite = font.render(text, True, (0, 0, 0))  # Rendered once; color doesn't affect size
     return [sprite.get_width(), sprite.get_height()]
 
 
-def simpleText(screen_, color_, font_, x_, y_, text_):
-    screen_.blit(font_.render(text_, True, color_), (x_, y_))
+def simpleText(screen, color, font, x, y, text):
+    screen.blit(font.render(text, True, color), (x, y))
 
 
-def getFontSizeWithWrap(font_, text_, max_len):
-    out = []
-    complete_row = ""
-    if pygame.font.Font.size(font_, text_)[0] > max_len:
-        all_words = []
-        word = ""
-        complete_row = ""
-        for i, char in enumerate(text_):
-            if char != " ":
-                word += char
-            else:
-                all_words.append(word + " ")
-                word = ""
-            if i + 1 == len(text_):
-                all_words.append(word)
-        for i, word in enumerate(all_words):
-            if pygame.font.Font.size(font_, word)[0] + pygame.font.Font.size(font_, complete_row)[0] > max_len:
-                out.append(complete_row)
-                complete_row = "" + word
-            else:
-                complete_row += word
-            if i + 1 == len(all_words):
-                complete_row += word
-    else:
-        complete_row += text_
-    out.append(complete_row)
-    largest_len = max([pygame.font.Font.size(font_, line)[0] for line in out])
-    return [len(out), largest_len]
-
-
-def draw_text(screen_, color_, font_, x_, y_, text_, color2_=None, shadow_size_=0, wrap_=False, max_len=None, centered_=False, antiAliasing=True):
-    if wrap_:
-        if pygame.font.Font.size(font_, text_)[0] > max_len:
-            all_words = []
-            temp = ""
-            complete_row = ""
-            output = []
-            for i, char in enumerate(text_):
-                if char != " ":
-                    temp += char
-                else:
-                    all_words.append(temp + " ")
-                    temp = ""
-                if i + 1 == len(text_):
-                    all_words.append(temp)
-            for i, word in enumerate(all_words):
-                if pygame.font.Font.size(font_, word)[0] + pygame.font.Font.size(font_, complete_row)[0] > max_len:
-                    output.append(complete_row)
-                    complete_row = "" + word
-                else:
-                    complete_row += word
-            output.append(complete_row)
-            if centered_:
-                for i, row in enumerate(output):
-                    if shadow_size_ != 0:
-                        screen_.blit(font_.render(row, antiAliasing, color2_), (x_ - pygame.font.Font.size(font_, row)[0] / 2 + shadow_size_, y_ + shadow_size_ + ((i - len(output) / 2) * 1.1 * pygame.font.Font.size(font_, row)[1])))
-                    screen_.blit(font_.render(row, antiAliasing, color_), (x_ - pygame.font.Font.size(font_, row)[0] / 2, y_ + ((i - len(output) / 2) * 1.1 * pygame.font.Font.size(font_, row)[1])))
-            else:
-                for i, row in enumerate(output):
-                    if shadow_size_ != 0:
-                        screen_.blit(font_.render(row, antiAliasing, color2_), (x_ + shadow_size_, y_ + shadow_size_ + (i * 1.1 * pygame.font.Font.size(font_, row)[1])))
-                    screen_.blit(font_.render(row, antiAliasing, color_), (x_, y_ + (i * 1.1 * pygame.font.Font.size(font_, row)[1])))
+def wrapText(font, text, maxLen):
+    words, line, wrappedLines = text.split(), "", []
+    for word in words:
+        testLine = f"{line} {word}".strip()
+        if font.size(testLine)[0] > maxLen:
+            wrappedLines.append(line)
+            line = word
         else:
-            if centered_:
-                if shadow_size_ != 0:
-                    screen_.blit(font_.render(text_, antiAliasing, color2_), (x_ - pygame.font.Font.size(font_, text_)[0] / 2 + shadow_size_, y_ - pygame.font.Font.size(font_, text_)[1] / 2 + shadow_size_))
-                screen_.blit(font_.render(text_, antiAliasing, color_), (x_ - pygame.font.Font.size(font_, text_)[0] / 2, y_ - pygame.font.Font.size(font_, text_)[1] / 2))
-            else:
-                if shadow_size_ != 0:
-                    screen_.blit(font_.render(text_, antiAliasing, color2_), (x_ + shadow_size_, y_ + shadow_size_))
-                screen_.blit(font_.render(text_, antiAliasing, color_), (x_, y_))
+            line = testLine
+    wrappedLines.append(line)
+    maxWidth = max(font.size(line)[0] for line in wrappedLines)
+    return wrappedLines, maxWidth
+
+
+def drawText(screen, color, font, x, y, text, color2=None, shadowSize=0, wrap=False, maxLen=None, antiAliasing=False, justify="left", centeredVertically=False):
+    def drawLine(currentLine, xOffset, yOffset):
+        shadowPos = (xOffset + shadowSize, yOffset + shadowSize)
+        textPos = (xOffset, yOffset)
+        if shadowSize and color2:
+            screen.blit(font.render(currentLine, antiAliasing, color2), shadowPos)
+        screen.blit(font.render(currentLine, antiAliasing, color), textPos)
+
+    if wrap and maxLen:
+        lines, _ = wrapText(font, text, maxLen)
     else:
-        if centered_:
-            if shadow_size_ != 0:
-                screen_.blit(font_.render(text_, antiAliasing, color2_), (x_ - pygame.font.Font.size(font_, text_)[0] / 2 + shadow_size_, y_ - pygame.font.Font.size(font_, text_)[1] / 2 + shadow_size_))
-            screen_.blit(font_.render(text_, antiAliasing, color_), (x_ - pygame.font.Font.size(font_, text_)[0] / 2, y_ - pygame.font.Font.size(font_, text_)[1] / 2))
-        else:
-            if shadow_size_ != 0:
-                screen_.blit(font_.render(text_, antiAliasing, color2_), (x_ + shadow_size_, y_ + shadow_size_))
-            screen_.blit(font_.render(text_, antiAliasing, color_), (x_, y_))
+        lines = [text]
+
+    totalHeight = len(lines) * font.get_height() * 1.1
+    baseY = y - (totalHeight / 2 if centeredVertically else 0)
+
+    for i, line in enumerate(lines):
+        lineWidth = font.size(line)[0]
+        if justify == "middle" or justify == "center":
+            baseX = x - (lineWidth / 2)
+        elif justify == "right":
+            baseX = x - lineWidth
+        else:  # Default to left
+            baseX = x
+        drawLine(line, baseX, baseY + i * font.get_height() * 1.1)
