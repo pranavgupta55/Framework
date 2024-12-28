@@ -71,6 +71,10 @@ def linear_gradient(colors, normalizedZero2One):
     return [(int(colors[index][i] + percent * (colors[index + 1][i] - colors[index][i]))) for i in range(3)]
 
 
+def setOpacity(color, newOpacity):
+    return color[0], color[1], color[2], newOpacity
+    
+
 def normalize(value, minValue, maxValue, doesCap=False):
     output = (value - minValue) / (maxValue - minValue)
     if doesCap:
