@@ -2,7 +2,8 @@ import pygame
 import math
 import time
 from calcs import distance
-from text import draw_text
+from fontDict import fonts
+from text import drawText
 
 pygame.init()
 
@@ -22,14 +23,10 @@ scroll = [0, 0]
 scrolling = [0, 0]
 scrolling_speed = 10
 shake_strength = 3
-pygame.font.get_fonts()
-font15 = pygame.font.Font("freesansbold.ttf", 15)
-font20 = pygame.font.Font("freesansbold.ttf", 20)
-font30 = pygame.font.Font("freesansbold.ttf", 30)
-font40 = pygame.font.Font("freesansbold.ttf", 40)
-better_font40 = pygame.font.SysFont("keyboard.ttf", 40)
-font50 = pygame.font.Font("freesansbold.ttf", 50)
-font100 = pygame.font.Font("freesansbold.ttf", 100)
+montserratRegularAdaptive = fonts[f"regular{25}"]
+montserratExtralightAdaptive = fonts[f"extralight{25}"]
+montserratBoldAdaptive = fonts[f"bold{25}"]
+montserratThinAdaptive = fonts[f"thin{25}"]
 
 
 class Endesga:
@@ -267,9 +264,14 @@ while running:
                 selected_block = tt.num
 
     # ---------------- Updating Screen
-    draw_text(screen2, Endesga.debug_red, better_font40, 20, screen_height - 110, str(int(clock.get_fps())), Endesga.black, 3)
-    draw_text(screen2, Endesga.debug_red, better_font40, 20, screen_height - 70, str(int(mx + scroll[0])) + ", " + str(int(my + scroll[1])), Endesga.black, 3)
-    draw_text(screen2, Endesga.debug_red, better_font40, 20, screen_height - 40, "File: " + file, Endesga.black, 3)
+    items = {round(clock.get_fps()): None,
+             str(int(mx + scroll[0])) + ", " + str(int(my + scroll[1])): None,
+             file: "File"}
+    for i, label in enumerate(items.keys()):
+        string = str(label)
+        if items[label] is not None:
+            string = f"{items[label]}: " + string
+        drawText(screenUI, Endesga.debug_red, montserratRegularAdaptive, 5, screen_height - (30 + 25 * i), string, Endesga.black, 1, antiAliasing=False)
     pygame.mouse.set_visible(False)
     pygame.draw.circle(screenUI, Endesga.greyL, (mx, my), 2)
     pygame.draw.circle(screenUI, Endesga.greyL, (mx, my), brush_size * tile_size, 1)
