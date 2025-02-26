@@ -177,3 +177,55 @@ def draw_arrow(screen, start, end, color, pygameModel, thickness=3, arrowhead_le
     # Draw the two lines for the arrowhead
     pygameModel.draw.line(screen, color, end, arrowhead_point1, thickness)
     pygameModel.draw.line(screen, color, end, arrowhead_point2, thickness)
+
+
+def search(direc, node, max_sizes, all_blocks):
+    new_nodes = []
+    searches = [[True, True], [True, True]]
+    searches[direc // 2][1 - (direc % 2)] = False
+    if searches[0][0]:
+        if (node[0] - 1) >= 0:
+            if all_blocks[node[0] - 1][node[1]] == 0:
+                new_nodes.append([node[0] - 1, node[1]])
+    if searches[0][1]:
+        if (node[0] + 1) < max_sizes[0]:
+            if all_blocks[node[0] + 1][node[1]] == 0:
+                new_nodes.append([node[0] + 1, node[1]])
+    if searches[1][0]:
+        if (node[1] - 1) >= 0:
+            if all_blocks[node[0]][node[1] - 1] == 0:
+                new_nodes.append([node[0], node[1] - 1])
+    if searches[1][1]:
+        if (node[1] + 1) < max_sizes[1]:
+            if all_blocks[node[0]][node[1] + 1] == 0:
+                new_nodes.append([node[0], node[1] + 1])
+    return new_nodes
+
+
+def floodFillStep(queue, max_sizes, all_blocks):
+    for node in reversed(queue[0]):
+        for direc in range(4):
+            s = search(direc, node, max_sizes, all_blocks)
+            for new_node in s:
+                if (new_node not in queue[0]) and (new_node not in queue[1]):
+                    queue[0].append(new_node)
+        queue[1].append(node)
+        queue[0].remove(node)
+    return queue
+
+
+def rectRotation(center, w, h, a=0):
+    # tr tl bl br
+    cords = [[center[0] + ((w / 2) * math.cos(a)) - ((h / 2) * math.sin(a)),
+              center[1] + ((w / 2) * math.sin(a)) + ((h / 2) * math.cos(a))],
+             [center[0] - ((w / 2) * math.cos(a)) - ((h / 2) * math.sin(a)),
+              center[1] - ((w / 2) * math.sin(a)) + ((h / 2) * math.cos(a))],
+             [center[0] - ((w / 2) * math.cos(a)) + ((h / 2) * math.sin(a)),
+             center[1] - ((w / 2) * math.sin(a)) - ((h / 2) * math.cos(a))],
+             [center[0] + ((w / 2) * math.cos(a)) + ((h / 2) * math.sin(a)),
+              center[1] + ((w / 2) * math.sin(a)) - ((h / 2) * math.cos(a))]]
+    return cords
+
+
+def ellipsePointCollision(pos, ellipseCenter, ellipseHeightRad, ellipseWidthRad):
+    return (((ellipseCenter[0] - pos[0]) ** 2) / (ellipseHeightRad ** 2) + ((ellipseCenter[1] - pos[1]) ** 2) / (ellipseWidthRad ** 2)) <= 1
