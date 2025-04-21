@@ -1,7 +1,66 @@
 import math
-import random
 import colorsys
+import random
 import numpy as np
+
+
+def createRadialGradientSurface(pygame, finalSize=(512, 512), circularSmoothnessSteps=3, starterSize=(3, 3), baseColor=(0, 0, 0, 200), centerColor=(180, 30, 255, 255)):
+    """
+    Creates a radial gradient surface.
+
+    Parameters:
+      pygame: base library
+      finalSize: (width, height) for the final surface.
+      circularSmoothnessSteps: Number of segments to rotate/blend.
+      starterSize: Size of the small starter surface (e.g. (3, 3)).
+      baseColor: RGBA color for the edges.
+      centerColor: RGBA color for the center.
+
+    Returns:
+      A pygame.Surface containing the radial gradient.
+    """
+    tempSurface = pygame.Surface(finalSize, pygame.SRCALPHA)
+    tempSurface.set_alpha(255)
+
+    # Adjust the colors by dividing each channel by circularSmoothnessSteps.
+    color1 = pygame.Color(*baseColor)
+    color2 = pygame.Color(*centerColor)
+    for attr in ('r', 'g', 'b', 'a'):
+        setattr(color1, attr, getattr(color1, attr) // circularSmoothnessSteps)
+        setattr(color2, attr, getattr(color2, attr) // circularSmoothnessSteps)
+
+    # Create the starter surface.
+    starter = pygame.Surface(starterSize, pygame.SRCALPHA)
+    starter.fill(color1)
+    centerRect = pygame.Rect(starterSize[0] // 2, starterSize[1] // 2, 1, 1)
+    starter.fill(color2, centerRect)
+
+    # Scale up the starter.
+    gradSurface = pygame.transform.smoothscale(starter, finalSize)
+
+    # Rotate and blend copies.
+    for i in range(circularSmoothnessSteps):
+        angle = (360.0 / circularSmoothnessSteps) * i
+        rotated = pygame.transform.rotate(gradSurface, angle)
+        posRect = pygame.Rect((0, 0), finalSize)
+        areaRect = pygame.Rect(0, 0, finalSize[0], finalSize[1])
+        areaRect.center = (rotated.get_width() // 2, rotated.get_height() // 2)
+        tempSurface.blit(rotated, posRect, area=areaRect, special_flags=pygame.BLEND_RGBA_ADD)
+
+    pygame.draw.circle(tempSurface, baseColor, (tempSurface.get_width() / 2, tempSurface.get_width() / 2), tempSurface.get_width(), int(tempSurface.get_width() / 2))
+
+    return tempSurface
+
+
+def drawRoundedLine(pygame, s, p1, p2, c, w):
+    p1v = pygame.math.Vector2(p1)
+    p2v = pygame.math.Vector2(p2)
+    lv = (p2v - p1v).normalize()
+    lnv = pygame.math.Vector2(-lv.y, lv.x) * (w / 2)
+    pts = [p1v + lnv, p2v + lnv, p2v - lnv, p1v - lnv]
+    pygame.draw.polygon(s, c, pts)
+    pygame.draw.circle(s, c, (int(p1v.x), int(p1v.y)), round(w / 2))
+    pygame.draw.circle(s, c, (int(p2v.x), int(p2v.y)), round(w / 2))
 
 
 def distance(point1, point2):
@@ -73,7 +132,7 @@ def linear_gradient(colors, normalizedZero2One):
 
 def setOpacity(color, newOpacity):
     return color[0], color[1], color[2], newOpacity
-    
+
 
 def normalize(value, minValue, maxValue, doesCap=False):
     output = (value - minValue) / (maxValue - minValue)
@@ -216,14 +275,8 @@ def floodFillStep(queue, max_sizes, all_blocks):
 
 def rectRotation(center, w, h, a=0):
     # tr tl bl br
-    cords = [[center[0] + ((w / 2) * math.cos(a)) - ((h / 2) * math.sin(a)),
-              center[1] + ((w / 2) * math.sin(a)) + ((h / 2) * math.cos(a))],
-             [center[0] - ((w / 2) * math.cos(a)) - ((h / 2) * math.sin(a)),
-              center[1] - ((w / 2) * math.sin(a)) + ((h / 2) * math.cos(a))],
-             [center[0] - ((w / 2) * math.cos(a)) + ((h / 2) * math.sin(a)),
-             center[1] - ((w / 2) * math.sin(a)) - ((h / 2) * math.cos(a))],
-             [center[0] + ((w / 2) * math.cos(a)) + ((h / 2) * math.sin(a)),
-              center[1] + ((w / 2) * math.sin(a)) - ((h / 2) * math.cos(a))]]
+    cords = [[center[0] + ((w / 2) * math.cos(a)) - ((h / 2) * math.sin(a)), center[1] + ((w / 2) * math.sin(a)) + ((h / 2) * math.cos(a))], [center[0] - ((w / 2) * math.cos(a)) - ((h / 2) * math.sin(a)), center[1] - ((w / 2) * math.sin(a)) + ((h / 2) * math.cos(a))], [center[0] - ((w / 2) * math.cos(a)) + ((h / 2) * math.sin(a)), center[1] - ((w / 2) * math.sin(a)) - ((h / 2) * math.cos(a))],
+             [center[0] + ((w / 2) * math.cos(a)) + ((h / 2) * math.sin(a)), center[1] + ((w / 2) * math.sin(a)) - ((h / 2) * math.cos(a))]]
     return cords
 
 
