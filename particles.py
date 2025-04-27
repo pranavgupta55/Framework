@@ -3,7 +3,7 @@ import math
 from calcs import distance
 from calcs import normalize_angle
 from calcs import brightness
-from calcs import linear_gradient
+from calcs import linearGradient
 import random
 import copy
 
@@ -313,7 +313,7 @@ class Flame:
         func = (math.sin(3 * self.t) + math.sin(7 * self.t)) / 4
 
         color_weight = ((func + 0.5) + (self.index / self.totalFlameCount)) / 2 # Normalize "func" to [0, 1] to get the interpolation factor, also adjust hue based on ring index
-        color = linear_gradient(self.colRange, color_weight)
+        color = linearGradient(self.colRange, color_weight)
 
         # Calculate the oscillating size of the flame
         oscillating_size = self.size + self.growShrink * func
@@ -354,7 +354,7 @@ class Smoke:
             return True
 
     def draw(self, s, scr):
-        pygame.draw.circle(s, linear_gradient(self.cols, self.timer / self.maxTimer), [self.x - scr[0], self.y - scr[1]], self.rad + math.sin(self.timer))
+        pygame.draw.circle(s, linearGradient(self.cols, self.timer / self.maxTimer), [self.x - scr[0], self.y - scr[1]], self.rad + math.sin(self.timer))
 
 
 class Ember:
@@ -390,7 +390,7 @@ class Ember:
             return True
 
     def draw(self, s, scr):
-        pygame.draw.circle(s, linear_gradient(self.cols, self.timer / self.maxTimer), [self.x - scr[0], self.y - scr[1]], self.rad + math.sin(self.timer))
+        pygame.draw.circle(s, linearGradient(self.cols, self.timer / self.maxTimer), [self.x - scr[0], self.y - scr[1]], self.rad + math.sin(self.timer))
         if self.flame is not None:
             self.flame.draw(s, scr)
 

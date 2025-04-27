@@ -119,11 +119,17 @@ def shift_hue(color, hue_shift):
     return r, g, b
 
 
-def random_col():
+def randomCol(weighting=None):
+    if weighting == 'red' or weighting == 'r':
+        return [random.randint(127, 255), random.randint(0, 127), random.randint(0, 127)]
+    if weighting == 'green' or weighting == 'g':
+        return [random.randint(0, 127), random.randint(127, 255), random.randint(0, 127)]
+    if weighting == 'blue' or weighting == 'b':
+        return [random.randint(0, 127), random.randint(0, 127), random.randint(127, 255)]
     return [random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)]
 
 
-def linear_gradient(colors, normalizedZero2One):
+def linearGradient(colors, normalizedZero2One):
     normalizedZero2One = clip(0, 1 - 1e-3, normalizedZero2One)
     percent = (len(colors) - 1) * normalizedZero2One % 1
     index = min(int((len(colors) - 1) * normalizedZero2One), len(colors) - 1)
